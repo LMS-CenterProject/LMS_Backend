@@ -1,45 +1,117 @@
-using LMS.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+using LMS.API.Extensions;
+using LMS.API.Middleware;
+using LMS.Application.DependencyInjection;
+using LMS.Application.Common.Interfaces;
+using LMS.Infrastructure.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// ── Controllers ───────────────────────────────────────────────
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddDbContext<LMSDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// ── Clean Architecture layers ─────────────────────────────────
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
 
-// ✅ Swagger / OpenAPI Configuration
-builder.Services.AddSwaggerGen(c =>
+// ── Current user service ──────────────────────────────────────
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+// ── JWT Authentication ────────────────────────────────────────
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                                           Encoding.UTF8.GetBytes(
+                                               builder.Configuration["Jwt:Secret"]!)),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+// ── Swagger with JWT support ──────────────────────────────────
+builder.Services.AddSwaggerGen(options =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo
+    options.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "LMS API",
         Version = "v1",
         Description = "Learning Management System API"
     });
+
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter: Bearer {your token}"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id   = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
 
-var app = builder.Build();
+// ── Global exception handler ──────────────────────────────────
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
-// Configure the HTTP request pipeline.
+// ════════════════════════════════════════════════════════════
+var app = builder.Build();
+// ════════════════════════════════════════════════════════════
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "LMS API v1");
-        c.RoutePrefix = string.Empty;   // عشان يفتح Swagger على الـ Root (localhost:port)
+        c.RoutePrefix = string.Empty;
     });
 }
 
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
+
+
+
+
+
+

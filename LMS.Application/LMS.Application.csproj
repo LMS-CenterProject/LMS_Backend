@@ -12,15 +12,21 @@
 
   <ItemGroup>
     <Folder Include="Common\Exceptions\" />
-    <Folder Include="Common\Behaviors\" />
-    <Folder Include="Common\Interfaces\" />
-    <Folder Include="Common\Models\" />
+    <Folder Include="DependencyInjection\" />
     <Folder Include="DTOs\" />
     <Folder Include="Abstractions\" />
     <Folder Include="Features\Instructors\" />
     <Folder Include="Features\Courses\" />
     <Folder Include="Features\Students\CreateStudent\" />
     <Folder Include="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.5" />
   </ItemGroup>
 
 </Project>
