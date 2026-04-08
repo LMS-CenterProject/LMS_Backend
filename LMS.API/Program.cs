@@ -1,8 +1,9 @@
 using LMS.API.Extensions;
 using LMS.API.Middleware;
-using LMS.Application.DependencyInjection;
 using LMS.Application.Common.Interfaces;
+using LMS.Application.DependencyInjection;
 using LMS.Infrastructure.DependencyInjection;
+using LMS.Infrastructure.Persistence.Seeders;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -91,6 +92,27 @@ builder.Services.AddProblemDetails();
 // ════════════════════════════════════════════════════════════
 var app = builder.Build();
 // ════════════════════════════════════════════════════════════
+
+// ── Migrate and seed on startup (development only) ────────────
+var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Program");
+logger.LogInformation("🔧 Application Environment: {Environment}", app.Environment.EnvironmentName);
+
+if (app.Environment.IsDevelopment())
+{
+    logger.LogInformation("🗄️ Starting database migration and seeding...");
+    try
+    {
+        await app.Services.MigrateAndSeedAsync();
+        logger.LogInformation("✅ Database migration and seeding completed successfully!");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "❌ Error during database migration and seeding");
+        throw;
+    }
+}
+
+
 
 if (app.Environment.IsDevelopment())
 {

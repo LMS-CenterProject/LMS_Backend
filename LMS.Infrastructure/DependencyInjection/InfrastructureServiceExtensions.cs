@@ -37,6 +37,8 @@ namespace LMS.Infrastructure.DependencyInjection
 
 
             return services;
-        }
+        }       
     }
 }
+
+

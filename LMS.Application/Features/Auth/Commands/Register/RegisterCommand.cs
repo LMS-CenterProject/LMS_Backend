@@ -1,4 +1,5 @@
 ﻿using LMS.Application.Common.Models;
+using LMS.Domain.Enums;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -10,5 +11,6 @@ namespace LMS.Application.Features.Auth.Commands.Register
     string FullName,
     string Email,
     string Password,
-    string? PhoneNumber) : IRequest<Result<AuthResponse>>;
+    string? PhoneNumber,
+    UserRole Role = UserRole.Student) : IRequest<Result<AuthResponse>>;
 }
