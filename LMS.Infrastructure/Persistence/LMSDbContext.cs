@@ -1,4 +1,5 @@
 ﻿using LMS.Domain.Entities;
+using LMS.Domain.Enums;
 using LMS.Domain.Primitives;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,6 +11,7 @@ namespace LMS.Infrastructure.Persistence
     public sealed class LMSDbContext(DbContextOptions<LMSDbContext> options) : DbContext(options)
     {
         public DbSet<User> Users => Set<User>();
+        
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
         public DbSet<Course> Courses => Set<Course>();
         public DbSet<Category> Categories => Set<Category>();

@@ -32,9 +32,12 @@ namespace LMS.Application.Features.Auth.Commands.Register
                 hasher.Hash(cmd.Password),
                 cmd.PhoneNumber);
 
+            // 3. Set user role from registration request
+            user.ChangeRole(cmd.Role);
+
             await uow.Users.AddAsync(user, ct);
 
-            // 3. Issue tokens
+            // 4. Issue tokens
             var accessToken = jwt.GenerateAccessToken(user);
             var rawRefresh = jwt.GenerateRefreshToken();
             var expiryDays = int.Parse(config["Jwt:RefreshTokenExpiryDays"] ?? "7");
