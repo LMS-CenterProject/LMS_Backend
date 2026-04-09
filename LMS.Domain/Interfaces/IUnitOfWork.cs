@@ -9,6 +9,8 @@ namespace LMS.Domain.Interfaces
     {
         IUserRepository Users { get; }
         IRefreshTokenRepository RefreshTokens { get; }
+        IEnrollmentRepository Enrollments { get; }
+        ICourseRepository Courses { get; }
 
         Task<int> SaveChangesAsync(CancellationToken ct = default);
     }

@@ -10,9 +10,13 @@ namespace LMS.Infrastructure.Persistence.Repositories
     {
         private IUserRepository? _users;
         private IRefreshTokenRepository? _refreshTokens;
+        private IEnrollmentRepository? _enrollments;
+        private ICourseRepository? _courses;
 
         public IUserRepository Users => _users ??= new UserRepository(context);
         public IRefreshTokenRepository RefreshTokens => _refreshTokens ??= new RefreshTokenRepository(context);
+        public IEnrollmentRepository Enrollments => _enrollments ??= new EnrollmentRepository(context);
+        public ICourseRepository Courses => _courses ??= new CourseRepository(context);
 
         public async Task<int> SaveChangesAsync(CancellationToken ct = default) =>
             await context.SaveChangesAsync(ct);
