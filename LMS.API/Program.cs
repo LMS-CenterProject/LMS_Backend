@@ -2,7 +2,9 @@ using LMS.API.Extensions;
 using LMS.API.Middleware;
 using LMS.Application.Common.Interfaces;
 using LMS.Application.DependencyInjection;
+using LMS.Domain.Interfaces.Repositories;
 using LMS.Infrastructure.DependencyInjection;
+using LMS.Infrastructure.Persistence.Repositories;
 using LMS.Infrastructure.Persistence.Seeders;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -16,12 +18,20 @@ builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
 
+// ── MediatR ─────────────────────────────────────────────────
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
 // ── Clean Architecture layers ─────────────────────────────────
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 // ── Current user service ──────────────────────────────────────
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+// ── Repositories ─────────────────────────────────────────────
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<ISectionRepository, SectionRepository>();
+builder.Services.AddScoped<ILessonRepository, LessonRepository>();
 
 // ── JWT Authentication ────────────────────────────────────────
 builder.Services
@@ -47,7 +57,30 @@ builder.Services
         };
     });
 
-builder.Services.AddAuthorization();
+// Authorization Policy
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("CreateCourse", policy =>
+        policy.RequireRole("Instructor", "Admin"));
+
+    options.AddPolicy("UpdateCourse", policy =>
+        policy.RequireRole("Instructor", "Admin"));
+
+    options.AddPolicy("DeleteCourse", policy =>
+        policy.RequireRole("Instructor", "Admin"));
+
+    options.AddPolicy("ReadCourse", policy =>
+        policy.RequireAuthenticatedUser());
+
+    options.AddPolicy("PublishCourse", policy =>
+    policy.RequireRole("Instructor", "Admin"));
+
+    options.AddPolicy("ArchiveCourse", policy =>
+        policy.RequireRole("Instructor", "Admin"));
+
+    options.AddPolicy("GetInstructorCourses", policy =>
+        policy.RequireRole("Instructor", "Admin"));
+});
 
 // ── Swagger with JWT support ──────────────────────────────────
 builder.Services.AddSwaggerGen(options =>
