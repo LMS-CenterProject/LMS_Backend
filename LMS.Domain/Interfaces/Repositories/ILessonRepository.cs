@@ -10,7 +10,14 @@ namespace LMS.Domain.Interfaces.Repositories
         Task<Lesson?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
         Task<List<Lesson>> GetLessonsBySectionIdAsync(Guid sectionId, CancellationToken cancellationToken = default);
         Task<List<Lesson>> GetActiveLessonsBySectionIdAsync(Guid sectionId, CancellationToken cancellationToken = default);
+        Task<int> CountByCourseAsync(
+        Guid courseId,
+        CancellationToken ct = default);
 
-        
+        Task<Lesson?> GetByIdWithSectionAsync(
+            Guid lessonId,
+            CancellationToken ct = default);
+
+
     }
 }
