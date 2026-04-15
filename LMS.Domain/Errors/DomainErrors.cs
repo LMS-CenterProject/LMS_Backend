@@ -57,5 +57,17 @@
             public static readonly Error Invalid = new("Token.Invalid", "Token is invalid or has expired.");
             public static readonly Error Revoked = new("Token.Revoked", "Token has been revoked.");
         }
+
+        public static class LessonProgress
+        {
+            public static readonly Error NotFound = new("LessonProgress.NotFound", "Lesson progress record was not found.");
+            public static readonly Error NotEnrolled = new("LessonProgress.NotEnrolled", "You are not enrolled in this course.");
+            public static readonly Error AlreadyDone = new("LessonProgress.AlreadyDone", "This lesson is already marked as completed.");
+        }
+
+        public static class Certificate
+        {
+            public static readonly Error NotFound = new("Certificate.NotFound", "Certificate was not found.");
+        }
     }
 }

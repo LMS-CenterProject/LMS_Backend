@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using MediatR;
 using System.Collections.Generic;
 using System.Text;
 
@@ -24,6 +25,8 @@ namespace LMS.Infrastructure.DependencyInjection
             services.AddDbContext<LMSDbContext>(options =>
                 options.UseSqlServer(
                     config.GetConnectionString("DefaultConnection")));
+
+
 
             // Unit of Work
             services.AddScoped<IUnitOfWork, UnitOfWork>();

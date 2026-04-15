@@ -12,7 +12,8 @@ namespace LMS.Domain.Interfaces.Repositories
         Task<List<Course>> GetByInstructorIdAsync(Guid instructorId, CancellationToken cancellationToken = default);
 
         Task<Course?> GetDetailsByIdAsync(Guid id,CancellationToken cancellationToken = default);
-
-
+        Task<Course?> GetByIdWithSectionsAsync(
+            Guid courseId,
+            CancellationToken ct = default);
     }
 }

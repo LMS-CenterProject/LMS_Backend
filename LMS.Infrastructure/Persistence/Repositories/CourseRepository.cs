@@ -1,4 +1,4 @@
-﻿using LMS.Domain.Entities;
+using LMS.Domain.Entities;
 using LMS.Domain.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -8,23 +8,19 @@ using System.Threading.Tasks;
 
 namespace LMS.Infrastructure.Persistence.Repositories
 {
-    public class CourseRepository : Repository<Course>, ICourseRepository
+    public sealed class CourseRepository(LMSDbContext context)
+        : Repository<Course>(context), ICourseRepository
     {
-        public CourseRepository(LMSDbContext context)
-            : base(context)
-        {
-        }
-
         public async Task<Course?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await Context.Courses
+            return await DbSet
                 .Where(c => !c.IsDeleted && c.Id == id)
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task<List<Course>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            return await Context.Courses
+            return await DbSet
                 .Where(c => !c.IsDeleted)
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync(cancellationToken);
@@ -32,7 +28,7 @@ namespace LMS.Infrastructure.Persistence.Repositories
 
         public async Task<List<Course>> GetByInstructorIdAsync(Guid instructorId, CancellationToken cancellationToken = default)
         {
-            return await Context.Courses
+            return await DbSet
                 .Where(c => c.InstructorId == instructorId && !c.IsDeleted)
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync(cancellationToken);
@@ -40,25 +36,38 @@ namespace LMS.Infrastructure.Persistence.Repositories
 
         public async Task<Course?> GetDetailsByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await Context.Courses
+            return await DbSet
                 .Include(c => c.Sections)
                     .ThenInclude(s => s.Lessons)
                 .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted, cancellationToken);
         }
 
+        public async Task<Course?> GetByIdWithSectionsAsync(
+            Guid courseId, CancellationToken ct = default)
+        {
+            return await DbSet
+                .Include(c => c.Instructor)
+                .Include(c => c.Category)
+                .Include(c => c.Sections.OrderBy(s => s.OrderIndex))
+                    .ThenInclude(s => s.Lessons.OrderBy(l => l.OrderIndex))
+                .Include(c => c.CourseTags)
+                    .ThenInclude(ct2 => ct2.Tag)
+                .FirstOrDefaultAsync(c => c.Id == courseId, ct);
+        }
+
         public async Task AddAsync(Course course, CancellationToken cancellationToken = default)
         {
-            await base.AddAsync(course, cancellationToken);
+            await DbSet.AddAsync(course, cancellationToken);
         }
 
         public void Update(Course course)
         {
-            base.Update(course);
+            DbSet.Update(course);
         }
 
-        public void Remove(Course course)
+        public void Delete(Course course)
         {
-            base.Remove(course);
+            DbSet.Remove(course);
         }
     }
 }
