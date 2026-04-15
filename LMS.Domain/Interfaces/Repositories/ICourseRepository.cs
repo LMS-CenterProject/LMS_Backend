@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LMS.Domain.Interfaces.Repositories
 {
-    public interface ICourseRepository
+    public interface ICourseRepository: IRepository<Course>
     {
         Task<List<Course>> GetAllAsync(CancellationToken cancellationToken = default);
         Task<Course?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
@@ -13,11 +13,6 @@ namespace LMS.Domain.Interfaces.Repositories
 
         Task<Course?> GetDetailsByIdAsync(Guid id,CancellationToken cancellationToken = default);
 
-        Task AddAsync(Course course, CancellationToken cancellationToken = default);
-
-        void Update(Course course);
-
-        void Delete(Course course);
 
     }
 }
