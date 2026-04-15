@@ -13,6 +13,7 @@ namespace LMS.Domain.Entities
         public Guid SectionId { get; private set; }
         public string Title { get; private set; } = string.Empty;
         public string ContentUrl { get; private set; } = string.Empty;
+        public bool IsDeleted { get; private set; } = false;
         public ContentType ContentType { get; private set; }
         public int DurationSeconds { get; private set; }
         public int OrderIndex { get; private set; }
@@ -64,5 +65,14 @@ namespace LMS.Domain.Entities
         }
 
         public void ToggleFreePreview() => IsFreePreview = !IsFreePreview;
+
+        // Soft delete method
+        public void SoftDelete()
+        {
+            if (IsDeleted)
+                throw new InvalidOperationException("Course already deleted.");
+
+            IsDeleted = true;
+        }
     }
 }
