@@ -15,7 +15,6 @@
     <Folder Include="DependencyInjection\" />
     <Folder Include="Abstractions\" />
     <Folder Include="Features\Instructors\" />
-    <Folder Include="Features\Courses\" />
     <Folder Include="Features\Students\CreateStudent\" />
     <Folder Include="Services\" />
   </ItemGroup>

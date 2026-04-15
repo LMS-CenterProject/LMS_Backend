@@ -30,7 +30,6 @@ namespace LMS.Application.Features.Auth.Commands.Register
                 .When(x => x.PhoneNumber is not null);
 
             RuleFor(x => x.Role)
-                .NotEmpty().WithMessage("Role is required.")
                 .IsInEnum().WithMessage("Role must be either Student (0) or Instructor (1).")
                 .Must(role => role == UserRole.Student || role == UserRole.Instructor)
                 .WithMessage("Only Student and Instructor roles are allowed during registration.");

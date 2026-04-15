@@ -25,13 +25,13 @@ namespace LMS.Infrastructure.Services.Auth
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
-            {
-            new Claim(JwtRegisteredClaimNames.Sub,   user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.Name,  user.FullName),
-            new Claim(ClaimTypes.Role,               user.Role.ToString()),
-            new Claim(JwtRegisteredClaimNames.Jti,   Guid.NewGuid().ToString()),
-        };
+{
+    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // مهم جدًا
+    new Claim(ClaimTypes.Role, user.Role.ToString()),
+    new Claim(JwtRegisteredClaimNames.Email, user.Email),
+    new Claim(JwtRegisteredClaimNames.Name, user.FullName),
+    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+};
 
             var token = new JwtSecurityToken(
                 issuer: issuer,

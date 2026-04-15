@@ -101,11 +101,17 @@ namespace LMS.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("InstructorId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Language")
                         .IsRequired()
@@ -221,6 +227,9 @@ namespace LMS.Infrastructure.Migrations
 
                     b.Property<int>("DurationSeconds")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsFreePreview")
                         .HasColumnType("bit");
@@ -474,6 +483,9 @@ namespace LMS.Infrastructure.Migrations
 
                     b.Property<Guid>("CourseId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<int>("OrderIndex")
                         .HasColumnType("int");

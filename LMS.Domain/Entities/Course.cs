@@ -23,6 +23,8 @@ namespace LMS.Domain.Entities
         public string Language { get; private set; } = "English";
         public string? ThumbnailUrl { get; private set; }
         public int TotalWatchSeconds { get; private set; }
+        public bool IsDeleted { get; private set; } = false;
+        public DateTime? DeletedAt { get; private set; }
 
         // Navigation properties
         public User Instructor { get; private set; } = null!;
@@ -115,6 +117,16 @@ namespace LMS.Domain.Entities
         public void RecalculateTotalWatchSeconds(int totalSeconds)
         {
             TotalWatchSeconds = totalSeconds;
+            UpdatedAt = DateTime.UtcNow;
+        }
+        // Soft delete method
+        public void SoftDelete()
+        {
+            if (IsDeleted)
+                throw new InvalidOperationException("Course already deleted.");
+
+            IsDeleted = true;
+            DeletedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
         }
     }
