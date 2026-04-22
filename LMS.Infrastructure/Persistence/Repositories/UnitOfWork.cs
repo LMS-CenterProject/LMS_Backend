@@ -17,6 +17,8 @@ namespace LMS.Infrastructure.Persistence.Repositories
         private ILessonProgressRepository? _lessonProgresses;
         private ICertificateRepository? _certificates;
         private ILessonRepository? _lessons;
+        private IReviewRepository? _reviews;
+
 
 
         public IUserRepository Users => _users ??= new UserRepository(context);
@@ -26,6 +28,7 @@ namespace LMS.Infrastructure.Persistence.Repositories
         public ILessonProgressRepository LessonProgresses => _lessonProgresses ??= new LessonProgressRepository(context);
         public ICertificateRepository Certificates => _certificates ??= new CertificateRepository(context);
         public ILessonRepository Lessons => _lessons ??= new LessonRepository(context);
+        public IReviewRepository Reviews => _reviews ??= new ReviewRepository(context);
 
 
         public async Task<int> SaveChangesAsync(CancellationToken ct = default)

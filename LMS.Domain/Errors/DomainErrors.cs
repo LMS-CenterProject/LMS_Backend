@@ -50,6 +50,10 @@
             public static readonly Error LessonNotCompleted = new("Review.LessonNotCompleted", "You must complete the lesson before reviewing it.");
             public static readonly Error CannotReviewOwn = new("Review.CannotReviewOwn", "You cannot review your own content.");
             public static readonly Error InvalidRating = new("Review.InvalidRating", "Rating must be between 1 and 5.");
+            public static readonly Error NotFound = new("Review.NotFound", "Review was not found.");
+            public static readonly Error Unauthorized = new("Review.Unauthorized", "This review does not belong to you.");
+            public static readonly Error EditWindowClosed = new("Review.EditWindowClosed", "Reviews can only be edited within 30 days of posting.");
+
         }
 
         public static class Token
