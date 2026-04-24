@@ -1,4 +1,5 @@
 ﻿using LMS.Domain.Entities;
+using LMS.Domain.Enums;
 using LMS.Domain.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -21,5 +22,33 @@ namespace LMS.Infrastructure.Persistence.Repositories
         public async Task<bool> EmailExistsAsync(string email, CancellationToken ct = default) =>
             await DbSet
                 .AnyAsync(u => u.Email == email.ToLowerInvariant(), ct);
+
+       public async Task<(IEnumerable<User> Users, int TotalCount)> GetAllPaginatedAsync(
+                    int page,
+                    int pageSize,
+                    string? search = null,
+                    UserRole? role = null,
+                    CancellationToken ct = default)
+        {
+            var query = DbSet.AsNoTracking().AsQueryable();
+            // Filter by role
+            if (role.HasValue)
+                query = query.Where(u => u.Role == role.Value);
+            if(string.IsNullOrWhiteSpace(search))
+            {
+                var lower=search.ToLowerInvariant();
+                query = query.Where(u => u.FullName.ToLowerInvariant().Contains(lower) || u.Email.ToLowerInvariant().Contains(lower));
+            }
+            var totalCount = await query.CountAsync(ct);
+            var users = await query
+                .OrderBy(u => u.FullName)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(ct);
+
+            return (users, totalCount);
+
+
+        }
     }
 }
