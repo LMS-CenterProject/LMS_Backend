@@ -22,6 +22,9 @@ builder.Services.AddEndpointsApiExplorer();
 // ── MediatR ─────────────────────────────────────────────────
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
+// ── SignalR ──────────────────────────────────────
+builder.Services.AddSignalR();
+
 // ── Clean Architecture layers ─────────────────────────────────
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
