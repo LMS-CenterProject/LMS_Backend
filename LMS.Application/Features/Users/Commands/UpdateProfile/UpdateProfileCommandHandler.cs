@@ -15,12 +15,15 @@ namespace LMS.Application.Features.Users.Commands.UpdateProfile
     {
         public async Task<Result<UserProfileDto>> Handle(UpdateProfileCommand cmd, CancellationToken ct)
         {
+            if (!current.UserId.HasValue)
+                return Result.Failure<UserProfileDto>(DomainErrors.User.NotFound);
+
             var user = await uow.Users.GetByIdAsync(current.UserId.Value, ct);
             if (user == null)
             {
                 return Result.Failure<UserProfileDto>(DomainErrors.User.NotFound);
             }
-          
+
             // Only update provided fields
             var fullName = cmd.FullName ?? user.FullName;
             var phoneNumber = cmd.PhoneNumber ?? user.PhoneNumber;
