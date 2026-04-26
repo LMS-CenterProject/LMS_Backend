@@ -11,7 +11,7 @@ using System.Text;
 namespace LMS.Application.Features.Users.Commands.UpdateProfile
 {
     public sealed class UpdateProfileCommandHandler(
-        IUnitOfWork uow,ICurrentUserService current) : IRequestHandler<UpdateProfileCommand, Result<UserProfileDto>>
+        IUnitOfWork uow, ICurrentUserService current) : IRequestHandler<UpdateProfileCommand, Result<UserProfileDto>>
     {
         public async Task<Result<UserProfileDto>> Handle(UpdateProfileCommand cmd, CancellationToken ct)
         {
@@ -21,7 +21,12 @@ namespace LMS.Application.Features.Users.Commands.UpdateProfile
                 return Result.Failure<UserProfileDto>(DomainErrors.User.NotFound);
             }
           
-            user.UpdateProfile(cmd.FullName, cmd.PhoneNumber, cmd.AvatarUrl);
+            // Only update provided fields
+            var fullName = cmd.FullName ?? user.FullName;
+            var phoneNumber = cmd.PhoneNumber ?? user.PhoneNumber;
+            var avatarUrl = cmd.AvatarUrl ?? user.AvatarUrl;
+            
+            user.UpdateProfile(fullName, phoneNumber, avatarUrl);
             await uow.SaveChangesAsync(ct);
             return Result.Success(new UserProfileDto(
                  Id: user.Id,
@@ -34,6 +39,5 @@ namespace LMS.Application.Features.Users.Commands.UpdateProfile
                  IsActive: user.IsActive,
                  CreatedAt: user.CreatedAt));
         }
-
     }
 }
