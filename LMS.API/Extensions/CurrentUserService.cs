@@ -19,10 +19,14 @@ namespace LMS.API.Extensions
             }
         }
 
+        public string? DisplayName =>
+            User?.FindFirstValue(ClaimTypes.Name)
+            ?? User?.FindFirstValue(JwtRegisteredClaimNames.Name)
+            ?? User?.Identity?.Name
+            ?? User?.FindFirstValue(ClaimTypes.Email)
+            ?? User?.FindFirstValue(JwtRegisteredClaimNames.Email);
+
         public string? Role => User?.FindFirstValue(ClaimTypes.Role);
         public bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
-
-        // Add this using at the top of the file:
-        // using System.IdentityModel.Tokens.Jwt;
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-//using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 
 namespace LMS.API.Middleware
@@ -13,7 +12,16 @@ namespace LMS.API.Middleware
             Exception exception,
             CancellationToken ct)
         {
-            logger.LogError(exception, "Unhandled exception: {Message}", exception.Message);
+            var correlationId = httpContext.Response.Headers.TryGetValue("X-Correlation-ID", out var correlationIdHeader)
+                ? correlationIdHeader.ToString()
+                : httpContext.TraceIdentifier;
+
+            logger.LogError(
+                exception,
+                "Unhandled exception while processing {Method} {Path} [corr:{CorrelationId}]",
+                httpContext.Request.Method,
+                httpContext.Request.Path,
+                correlationId);
 
             var (statusCode, title) = exception switch
             {
