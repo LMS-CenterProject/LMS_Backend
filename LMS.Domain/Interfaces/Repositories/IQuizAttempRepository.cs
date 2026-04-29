@@ -19,5 +19,8 @@ namespace LMS.Domain.Interfaces.Repositories
             Guid studentId,
             Guid quizId,
             CancellationToken ct = default);
+        Task<int> CountAttemptsAsync(Guid studentId, Guid quizId, CancellationToken ct = default);
+        Task<bool> HasPassedAsync(Guid studentId, Guid quizId, CancellationToken ct=default);
     }
+
 }

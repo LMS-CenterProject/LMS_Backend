@@ -10,5 +10,6 @@ namespace LMS.Domain.Interfaces.Repositories
         Task<IEnumerable<Question>> GetByQuizIdAsync(
             Guid quizId,
             CancellationToken ct = default);
+        Task<Question?> GetWithAnswersAsync(Guid questionId, CancellationToken ct = default);
     }
 }
