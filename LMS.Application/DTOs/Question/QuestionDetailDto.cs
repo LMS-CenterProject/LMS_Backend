@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LMS.Application.DTOs.Question
 {
-    public class QuestionDto
+    public class QuestionDetailDto
     {
         public Guid Id { get; set; }
         public Guid QuizId { get; set; }
@@ -13,6 +13,6 @@ namespace LMS.Application.DTOs.Question
         public string Type { get; set; } = string.Empty;
         public int Points { get; set; }
 
-        public List<AnswerDto> Answers { get; set; } = [];
+        public List<AnswerDto> Answers { get; set; } = new();
     }
 }
