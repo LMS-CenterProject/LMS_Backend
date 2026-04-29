@@ -9,23 +9,16 @@ using LMS.Domain.Interfaces.Repositories;
 
 namespace LMS.Infrastructure.Persistence.Repositories
 {
-    public class AnswerRepository
-    : Repository<Answer>, IAnswerRepository
+    public sealed class AnswerRepository(LMSDbContext context)
+        : Repository<Answer>(context), IAnswerRepository
     {
-        private readonly LMSDbContext _context;
-
-        public AnswerRepository(LMSDbContext context) : base(context)
-        {
-            _context = context;
-        }
-
         public async Task<IEnumerable<Answer>> GetByQuestionIdAsync(
             Guid questionId,
-            CancellationToken ct = default)
+            CancellationToken cancellationToken = default)
         {
-            return await _context.Answers
+            return await DbSet
                 .Where(a => a.QuestionId == questionId)
-                .ToListAsync(ct);
+                .ToListAsync(cancellationToken);
         }
     }
 }

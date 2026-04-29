@@ -26,5 +26,13 @@ namespace LMS.Infrastructure.Persistence.Repositories
                 .Include(q => q.Answers)
                 .ToListAsync(ct);
         }
+        public async Task<Question?> GetWithAnswersAsync(
+            Guid questionId,
+            CancellationToken ct = default)
+        {
+            return await Context.Questions
+                .Include(q => q.Answers)
+                .FirstOrDefaultAsync(q => q.Id == questionId, ct);
+        }
     }
 }

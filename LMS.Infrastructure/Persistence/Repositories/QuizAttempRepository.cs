@@ -22,7 +22,7 @@ namespace LMS.Infrastructure.Persistence.Repositories
             CancellationToken ct = default)
         {
             return await _context.QuizAttempts
-                .Where(a => a.StudentId == studentId)
+                .Where(a => a.StudentId == studentId).OrderByDescending(a => a.AttemptedAt)
                 .ToListAsync(ct);
         }
 
@@ -42,6 +42,18 @@ namespace LMS.Infrastructure.Persistence.Repositories
         {
             return await _context.QuizAttempts
                 .AnyAsync(a => a.StudentId == studentId && a.QuizId == quizId, ct);
+        }
+        public async Task<int> CountAttemptsAsync(Guid studentId, Guid quizId, CancellationToken ct = default)
+        {
+            return await Context.QuizAttempts
+                .CountAsync(x => x.StudentId == studentId && x.QuizId == quizId, ct);
+        }
+        public async Task<bool> HasPassedAsync(Guid studentId, Guid quizId, CancellationToken ct = default)
+        {
+            return await Context.QuizAttempts
+                .AnyAsync(x => x.StudentId == studentId
+                            && x.QuizId == quizId
+                            && x.Passed, ct);
         }
     }
 }
