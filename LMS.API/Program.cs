@@ -69,26 +69,19 @@ builder.Services
 // Authorization Policy
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("CreateCourse", policy =>
-        policy.RequireRole("Instructor", "Admin"));
-
-    options.AddPolicy("UpdateCourse", policy =>
-        policy.RequireRole("Instructor", "Admin"));
-
-    options.AddPolicy("DeleteCourse", policy =>
-        policy.RequireRole("Instructor", "Admin"));
-
-    options.AddPolicy("ReadCourse", policy =>
-        policy.RequireAuthenticatedUser());
-
-    options.AddPolicy("PublishCourse", policy =>
-    policy.RequireRole("Instructor", "Admin"));
-
-    options.AddPolicy("ArchiveCourse", policy =>
-        policy.RequireRole("Instructor", "Admin"));
-
-    options.AddPolicy("GetInstructorCourses", policy =>
-        policy.RequireRole("Instructor", "Admin"));
+    options.AddPolicy("CreateCourse", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+    options.AddPolicy("UpdateCourse", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+    options.AddPolicy("DeleteCourse", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+    options.AddPolicy("PublishCourse", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+    options.AddPolicy("ArchiveCourse", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+    options.AddPolicy("GetInstructorCourses", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+    options.AddPolicy("ManageQuiz", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+    options.AddPolicy("ManageQuestion", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+    options.AddPolicy("ManageAnswer", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+    options.AddPolicy("ReadQuiz", policy => policy.RequireAuthenticatedUser());
+    options.AddPolicy("ReadAnswer", policy => policy.RequireAuthenticatedUser());
+    options.AddPolicy("ReadCourse", policy => policy.RequireAuthenticatedUser());
+    options.AddPolicy("ManageSubmit", policy => policy.RequireAuthenticatedUser());
 });
 
 // ── Swagger with JWT support ──────────────────────────────────
