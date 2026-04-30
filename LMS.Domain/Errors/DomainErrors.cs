@@ -47,6 +47,35 @@
             public static readonly Error NoCorrectAnswer = new("Quiz.NoCorrectAnswer", "Each question must have at least one correct answer.");
             public static readonly Error InvalidSingleChoice = new("Quiz.InvalidSingleChoice", "A single-choice question can only have one correct answer.");
         }
+        public static class Question
+        {
+            public static readonly Error NotFound =
+                new("Question.NotFound", "Question was not found.");
+
+            public static readonly Error InvalidType =
+                new("Question.InvalidType", "Invalid question type.");
+        }
+
+        public static class Answer
+        {
+            public static readonly Error NotFound =
+                new("Answer.NotFound", "Answer was not found.");
+
+            public static readonly Error NoCorrectAnswer =
+                new("Answer.NoCorrectAnswer", "At least one correct answer is required.");
+        }
+
+        public static class QuizAttempt
+        {
+            public static readonly Error NotFound =
+                new("QuizAttempt.NotFound", "Attempt not found.");
+
+            public static readonly Error NotAllowed =
+                new("QuizAttempt.NotAllowed", "You cannot attempt this quiz.");
+
+            public static readonly Error AlreadySubmitted =
+                new("QuizAttempt.AlreadySubmitted", "This attempt already exists.");
+        }
 
         public static class Review
         {
@@ -82,6 +111,18 @@
         public static class Certificate
         {
             public static readonly Error NotFound = new("Certificate.NotFound", "Certificate was not found.");
+        }
+        // Common errors
+        public static class Common
+        {
+            public static readonly Error Unauthorized = new("Common.Unauthorized", "You are not authorized to perform this action.");
+            public static readonly Error Forbidden = new("Common.Forbidden", "You do not have permission.");
+        }
+        public static class Validation
+        {
+            public static readonly Error Required = new("Validation.Required", "Field is required.");
+            public static readonly Error Invalid = new("Validation.Invalid", "Invalid value.");
+            public static readonly Error TooLong = new("Validation.TooLong", "Value is too long.");
         }
     }
 }

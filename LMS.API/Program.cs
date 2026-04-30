@@ -37,6 +37,19 @@ try
     // ── Clean Architecture layers ─────────────────────────────────
     builder.Services.AddApplication();
     builder.Services.AddInfrastructure(builder.Configuration);
+// ── Repositories ─────────────────────────────────────────────
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<ISectionRepository, SectionRepository>();
+builder.Services.AddScoped<ILessonRepository, LessonRepository>();
+builder.Services.AddScoped<IQuizRepository, QuizRepository>();
+builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+builder.Services.AddScoped<IAnswerRepository, AnswerRepository>();
+builder.Services.AddScoped<IQuizAttemptRepository, QuizAttemptRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
+builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
+builder.Services.AddScoped<ILessonProgressRepository, LessonProgressRepository>();
+
 
     // ── Current user service ──────────────────────────────────────
     builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
@@ -90,6 +103,23 @@ try
 
         options.AddPolicy("ArchiveCourse", policy =>
             policy.RequireRole("Instructor", "Admin"));
+// Authorization Policy
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("CreateCourse", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+    options.AddPolicy("UpdateCourse", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+    options.AddPolicy("DeleteCourse", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+    options.AddPolicy("PublishCourse", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+    options.AddPolicy("ArchiveCourse", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+    options.AddPolicy("GetInstructorCourses", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+    options.AddPolicy("ManageQuiz", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+    options.AddPolicy("ManageQuestion", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+    options.AddPolicy("ManageAnswer", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+    options.AddPolicy("ReadQuiz", policy => policy.RequireAuthenticatedUser());
+    options.AddPolicy("ReadAnswer", policy => policy.RequireAuthenticatedUser());
+    options.AddPolicy("ReadCourse", policy => policy.RequireAuthenticatedUser());
+    options.AddPolicy("ManageSubmit", policy => policy.RequireAuthenticatedUser());
+});
 
         options.AddPolicy("GetInstructorCourses", policy =>
             policy.RequireRole("Instructor", "Admin"));
