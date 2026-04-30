@@ -73,6 +73,11 @@
             public static readonly Error NotEnrolled = new("LessonProgress.NotEnrolled", "You are not enrolled in this course.");
             public static readonly Error AlreadyDone = new("LessonProgress.AlreadyDone", "This lesson is already marked as completed.");
         }
+        public static class Notification
+        {
+            public static readonly Error NotFound = new("Notification.NotFound", "Notification was not found.");
+            public static readonly Error Unauthorized = new("Notification.Unauthorized", "This notification does not belong to you.");
+        }
 
         public static class Certificate
         {

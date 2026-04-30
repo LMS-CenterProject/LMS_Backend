@@ -18,6 +18,7 @@ namespace LMS.Infrastructure.Persistence.Repositories
         private ICertificateRepository? _certificates;
         private ILessonRepository? _lessons;
         private IReviewRepository? _reviews;
+        private INotificationRepository? _notifications;     
 
 
 
@@ -29,6 +30,7 @@ namespace LMS.Infrastructure.Persistence.Repositories
         public ICertificateRepository Certificates => _certificates ??= new CertificateRepository(context);
         public ILessonRepository Lessons => _lessons ??= new LessonRepository(context);
         public IReviewRepository Reviews => _reviews ??= new ReviewRepository(context);
+        public INotificationRepository Notifications => _notifications ??= new NotificationRepository(context);   // ← new
 
 
         public async Task<int> SaveChangesAsync(CancellationToken ct = default)
