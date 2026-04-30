@@ -1,3 +1,4 @@
+using Serilog;
 using LMS.API.Extensions;
 using LMS.API.Middleware;
 using LMS.Application.Common.Interfaces;
@@ -14,24 +15,28 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ── Controllers ───────────────────────────────────────────────
-builder.Services.AddControllers();
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddEndpointsApiExplorer();
+// Serilog setup must happen before the rest of the host configuration.
+builder.AddSerilogLogging("LMS.API");
+var logger = Log.ForContext("SourceContext", "Startup");
 
-// ── MediatR ─────────────────────────────────────────────────
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+try
+{
+    logger.Information("Starting LMS API application");
 
-// ── SignalR ──────────────────────────────────────
-builder.Services.AddSignalR();
+    // ── Controllers ───────────────────────────────────────────────
+    builder.Services.AddControllers();
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddEndpointsApiExplorer();
 
-// ── Clean Architecture layers ─────────────────────────────────
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
+    // ── MediatR ─────────────────────────────────────────────────
+    builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
-// ── Current user service ──────────────────────────────────────
-builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+    // ── SignalR ──────────────────────────────────────
+    builder.Services.AddSignalR();
 
+    // ── Clean Architecture layers ─────────────────────────────────
+    builder.Services.AddApplication();
+    builder.Services.AddInfrastructure(builder.Configuration);
 // ── Repositories ─────────────────────────────────────────────
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ISectionRepository, SectionRepository>();
@@ -46,30 +51,58 @@ builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
 builder.Services.AddScoped<ILessonProgressRepository, LessonProgressRepository>();
 
 
-// ── JWT Authentication ────────────────────────────────────────
-builder.Services
-    .AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                                           Encoding.UTF8.GetBytes(
-                                               builder.Configuration["Jwt:Secret"]!)),
-            ClockSkew = TimeSpan.Zero
-        };
-    });
+    // ── Current user service ──────────────────────────────────────
+    builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
+    // ── Repositories ─────────────────────────────────────────────
+    builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+    builder.Services.AddScoped<ISectionRepository, SectionRepository>();
+    builder.Services.AddScoped<ILessonRepository, LessonRepository>();
+
+    // ── JWT Authentication ────────────────────────────────────────
+    builder.Services
+        .AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                ValidAudience = builder.Configuration["Jwt:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(
+                                                   Encoding.UTF8.GetBytes(
+                                                       builder.Configuration["Jwt:Secret"]!)),
+                ClockSkew = TimeSpan.Zero
+            };
+        });
+
+    // Authorization Policy
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("CreateCourse", policy =>
+            policy.RequireRole("Instructor", "Admin"));
+
+        options.AddPolicy("UpdateCourse", policy =>
+            policy.RequireRole("Instructor", "Admin"));
+
+        options.AddPolicy("DeleteCourse", policy =>
+            policy.RequireRole("Instructor", "Admin"));
+
+        options.AddPolicy("ReadCourse", policy =>
+            policy.RequireAuthenticatedUser());
+
+        options.AddPolicy("PublishCourse", policy =>
+            policy.RequireRole("Instructor", "Admin"));
+
+        options.AddPolicy("ArchiveCourse", policy =>
+            policy.RequireRole("Instructor", "Admin"));
 // Authorization Policy
 builder.Services.AddAuthorization(options =>
 {
@@ -88,104 +121,101 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("ManageSubmit", policy => policy.RequireAuthenticatedUser());
 });
 
-// ── Swagger with JWT support ──────────────────────────────────
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "LMS API",
-        Version = "v1",
-        Description = "Learning Management System API"
+        options.AddPolicy("GetInstructorCourses", policy =>
+            policy.RequireRole("Instructor", "Admin"));
     });
 
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    // ── Swagger with JWT support ──────────────────────────────────
+    builder.Services.AddSwaggerGen(options =>
     {
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Enter: Bearer {your token}"
-    });
-
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
+        options.SwaggerDoc("v1", new OpenApiInfo
         {
-            new OpenApiSecurityScheme
+            Title = "LMS API",
+            Version = "v1",
+            Description = "Learning Management System API"
+        });
+
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "Bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Enter: Bearer {your token}"
+        });
+
+        options.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
             {
-                Reference = new OpenApiReference
+                new OpenApiSecurityScheme
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id   = "Bearer"
-                }
-            },
-            Array.Empty<string>()
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id   = "Bearer"
+                    }
+                },
+                Array.Empty<string>()
+            }
+        });
+
+        // Include XML comments from the API project
+        var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+        if (File.Exists(xmlPath))
+        {
+            options.IncludeXmlComments(xmlPath);
         }
     });
 
-    // Include XML comments from the API project
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    if (File.Exists(xmlPath))
+    // ── Global exception handler ──────────────────────────────────
+    builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+    builder.Services.AddProblemDetails();
+
+    var app = builder.Build();
+
+    logger.Information("Running in {Environment} environment", app.Environment.EnvironmentName);
+
+    // ── Migrate and seed on startup (development only) ────────────
+    if (app.Environment.IsDevelopment())
     {
-        options.IncludeXmlComments(xmlPath);
+        logger.Information("Applying development database migrations and seed data");
+        try
+        {
+            await app.Services.MigrateAndSeedAsync();
+            logger.Information("Database migration and seed data completed successfully");
+        }
+        catch (Exception ex)
+        {
+            logger.Fatal(ex, "Database migration and seed data failed during startup");
+            throw;
+        }
     }
-});
 
-// ── Global exception handler ──────────────────────────────────
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails();
-
-// ════════════════════════════════════════════════════════════
-var app = builder.Build();
-// ════════════════════════════════════════════════════════════
-
-// ── Migrate and seed on startup (development only) ────────────
-var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Program");
-logger.LogInformation("🔧 Application Environment: {Environment}", app.Environment.EnvironmentName);
-
-if (app.Environment.IsDevelopment())
-{
-    logger.LogInformation("🗄️ Starting database migration and seeding...");
-    try
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
     {
-        await app.Services.MigrateAndSeedAsync();
-        logger.LogInformation("✅ Database migration and seeding completed successfully!");
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "❌ Error during database migration and seeding");
-        throw;
-    }
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "LMS API v1");
+        c.RoutePrefix = string.Empty;
+    });
+
+    app.UseExceptionHandler();
+    app.UseHttpsRedirection();
+    app.UseAuthentication();
+    app.UseMiddleware<RequestLoggingMiddleware>();
+    app.UseAuthorization();
+    app.MapControllers();
+
+    logger.Information("LMS API is ready to accept requests");
+    await app.RunAsync();
 }
-
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+catch (Exception ex)
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "LMS API v1");
-    c.RoutePrefix = string.Empty;     // ← This makes Swagger appear at the ROOT URL
-});
-
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI(c =>
-//    {
-//        c.SwaggerEndpoint("/swagger/v1/swagger.json", "LMS API v1");
-//        c.RoutePrefix = string.Empty;
-//    });
-//}
-
-app.UseExceptionHandler();
-app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
-
-app.Run();
-
-
-
-
-
-
+    logger.Fatal(ex, "Application terminated unexpectedly");
+    throw;
+}
+finally
+{
+    Log.CloseAndFlush();
+}

@@ -19,6 +19,7 @@ namespace LMS.Domain.Interfaces
         ILessonRepository Lessons { get; }
         ICertificateRepository Certificates { get; }
         IReviewRepository Reviews { get; }
+        INotificationRepository Notifications { get; }
 
         Task<int> SaveChangesAsync(CancellationToken ct = default);
     }

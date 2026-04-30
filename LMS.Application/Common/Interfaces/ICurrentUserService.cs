@@ -7,6 +7,7 @@ namespace LMS.Application.Common.Interfaces
     public interface ICurrentUserService
     {
         Guid? UserId { get; }
+        string? DisplayName { get; }
         string? Role { get; }
         bool IsAuthenticated { get; }
     }
