@@ -10,6 +10,11 @@
             public static readonly Error AccountDisabled = new("User.AccountDisabled", "This account has been deactivated.");
             public static readonly Error CannotDeactivateSelf = new("User.CannotDeactivateSelf", "You cannot deactivate your own account.");
             public static readonly Error GoogleIdAlreadyLinked = new("User.GoogleIdAlreadyLinked", "This Google account is already linked to another user.");
+            public static readonly Error WrongPassword = new("User.WrongPassword", "Current password is incorrect.");
+            public static readonly Error NoPasswordSet = new("User.NoPasswordSet", "This account uses Google sign-in and has no password to change.");
+            public static readonly Error CannotChangeOwnRole = new("User.CannotChangeOwnRole", "You cannot change your own role.");
+            public static readonly Error InvalidRole = new("User.InvalidRole", "The specified role is not valid.");
+            public static readonly Error UnAuthorized=new("User.UnAuthorized", "You are not authorized to perform this action.");
         }
 
         public static class Course
@@ -50,6 +55,10 @@
             public static readonly Error LessonNotCompleted = new("Review.LessonNotCompleted", "You must complete the lesson before reviewing it.");
             public static readonly Error CannotReviewOwn = new("Review.CannotReviewOwn", "You cannot review your own content.");
             public static readonly Error InvalidRating = new("Review.InvalidRating", "Rating must be between 1 and 5.");
+            public static readonly Error NotFound = new("Review.NotFound", "Review was not found.");
+            public static readonly Error Unauthorized = new("Review.Unauthorized", "This review does not belong to you.");
+            public static readonly Error EditWindowClosed = new("Review.EditWindowClosed", "Reviews can only be edited within 30 days of posting.");
+
         }
 
         public static class Token
