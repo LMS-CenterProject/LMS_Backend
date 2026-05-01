@@ -1,4 +1,4 @@
-﻿using LMS.Domain.Interfaces;
+using LMS.Domain.Interfaces;
 using LMS.Domain.Interfaces.Repositories;
 using LMS.Domain.Primitives;
 using MediatR;
@@ -19,6 +19,7 @@ namespace LMS.Infrastructure.Persistence.Repositories
         private ILessonRepository? _lessons;
         private IReviewRepository? _reviews;
         private INotificationRepository? _notifications;     
+        private ISectionRepository? _sections;
 
 
 
@@ -30,7 +31,8 @@ namespace LMS.Infrastructure.Persistence.Repositories
         public ICertificateRepository Certificates => _certificates ??= new CertificateRepository(context);
         public ILessonRepository Lessons => _lessons ??= new LessonRepository(context);
         public IReviewRepository Reviews => _reviews ??= new ReviewRepository(context);
-        public INotificationRepository Notifications => _notifications ??= new NotificationRepository(context);   // ← new
+        public INotificationRepository Notifications => _notifications ??= new NotificationRepository(context);
+        public ISectionRepository Sections => _sections ??= new SectionRepository(context);
 
 
         public async Task<int> SaveChangesAsync(CancellationToken ct = default)

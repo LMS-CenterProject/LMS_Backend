@@ -3,9 +3,7 @@ using LMS.API.Extensions;
 using LMS.API.Middleware;
 using LMS.Application.Common.Interfaces;
 using LMS.Application.DependencyInjection;
-using LMS.Domain.Interfaces.Repositories;
 using LMS.Infrastructure.DependencyInjection;
-using LMS.Infrastructure.Persistence.Repositories;
 using LMS.Infrastructure.Persistence.Seeders;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -28,36 +26,18 @@ try
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddEndpointsApiExplorer();
 
-    // ── MediatR ─────────────────────────────────────────────────
-    builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
-
     // ── SignalR ──────────────────────────────────────
     builder.Services.AddSignalR();
 
     // ── Clean Architecture layers ─────────────────────────────────
+    // AddApplication() registers MediatR, FluentValidation, and pipeline behaviors.
+    // AddInfrastructure() registers DbContext, UnitOfWork (which owns all repositories),
+    // and auth services (IJwtService, IPasswordHasher, IGoogleAuthService).
     builder.Services.AddApplication();
     builder.Services.AddInfrastructure(builder.Configuration);
-// ── Repositories ─────────────────────────────────────────────
-builder.Services.AddScoped<ICourseRepository, CourseRepository>();
-builder.Services.AddScoped<ISectionRepository, SectionRepository>();
-builder.Services.AddScoped<ILessonRepository, LessonRepository>();
-builder.Services.AddScoped<IQuizRepository, QuizRepository>();
-builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
-builder.Services.AddScoped<IAnswerRepository, AnswerRepository>();
-builder.Services.AddScoped<IQuizAttemptRepository, QuizAttemptRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
-builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
-builder.Services.AddScoped<ILessonProgressRepository, LessonProgressRepository>();
-
 
     // ── Current user service ──────────────────────────────────────
     builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
-
-    // ── Repositories ─────────────────────────────────────────────
-    builder.Services.AddScoped<ICourseRepository, CourseRepository>();
-    builder.Services.AddScoped<ISectionRepository, SectionRepository>();
-    builder.Services.AddScoped<ILessonRepository, LessonRepository>();
 
     // ── JWT Authentication ────────────────────────────────────────
     builder.Services
@@ -83,46 +63,22 @@ builder.Services.AddScoped<ILessonProgressRepository, LessonProgressRepository>(
             };
         });
 
-    // Authorization Policy
+    // ── Authorization Policies ────────────────────────────────────
     builder.Services.AddAuthorization(options =>
     {
-        options.AddPolicy("CreateCourse", policy =>
-            policy.RequireRole("Instructor", "Admin"));
-
-        options.AddPolicy("UpdateCourse", policy =>
-            policy.RequireRole("Instructor", "Admin"));
-
-        options.AddPolicy("DeleteCourse", policy =>
-            policy.RequireRole("Instructor", "Admin"));
-
-        options.AddPolicy("ReadCourse", policy =>
-            policy.RequireAuthenticatedUser());
-
-        options.AddPolicy("PublishCourse", policy =>
-            policy.RequireRole("Instructor", "Admin"));
-
-        options.AddPolicy("ArchiveCourse", policy =>
-            policy.RequireRole("Instructor", "Admin"));
-// Authorization Policy
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("CreateCourse", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
-    options.AddPolicy("UpdateCourse", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
-    options.AddPolicy("DeleteCourse", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
-    options.AddPolicy("PublishCourse", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
-    options.AddPolicy("ArchiveCourse", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
-    options.AddPolicy("GetInstructorCourses", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
-    options.AddPolicy("ManageQuiz", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
-    options.AddPolicy("ManageQuestion", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
-    options.AddPolicy("ManageAnswer", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
-    options.AddPolicy("ReadQuiz", policy => policy.RequireAuthenticatedUser());
-    options.AddPolicy("ReadAnswer", policy => policy.RequireAuthenticatedUser());
-    options.AddPolicy("ReadCourse", policy => policy.RequireAuthenticatedUser());
-    options.AddPolicy("ManageSubmit", policy => policy.RequireAuthenticatedUser());
-});
-
-        options.AddPolicy("GetInstructorCourses", policy =>
-            policy.RequireRole("Instructor", "Admin"));
+        options.AddPolicy("CreateCourse", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+        options.AddPolicy("UpdateCourse", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+        options.AddPolicy("DeleteCourse", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+        options.AddPolicy("PublishCourse", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+        options.AddPolicy("ArchiveCourse", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+        options.AddPolicy("GetInstructorCourses", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+        options.AddPolicy("ManageQuiz", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+        options.AddPolicy("ManageQuestion", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+        options.AddPolicy("ManageAnswer", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+        options.AddPolicy("ReadQuiz", policy => policy.RequireAuthenticatedUser());
+        options.AddPolicy("ReadAnswer", policy => policy.RequireAuthenticatedUser());
+        options.AddPolicy("ReadCourse", policy => policy.RequireAuthenticatedUser());
+        options.AddPolicy("ManageSubmit", policy => policy.RequireAuthenticatedUser());
     });
 
     // ── Swagger with JWT support ──────────────────────────────────

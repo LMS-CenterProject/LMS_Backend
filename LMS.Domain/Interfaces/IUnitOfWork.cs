@@ -1,4 +1,4 @@
-﻿using LMS.Domain.Interfaces.Repositories;
+using LMS.Domain.Interfaces.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -20,6 +20,7 @@ namespace LMS.Domain.Interfaces
         ICertificateRepository Certificates { get; }
         IReviewRepository Reviews { get; }
         INotificationRepository Notifications { get; }
+        ISectionRepository Sections { get; }
 
         Task<int> SaveChangesAsync(CancellationToken ct = default);
     }
