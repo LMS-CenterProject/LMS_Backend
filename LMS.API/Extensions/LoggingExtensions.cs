@@ -14,6 +14,9 @@ public static class LoggingExtensions
     private const string FileOutputTemplate =
         "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {Level:u3}] [{Source}] {Message:lj}{NewLine}{Exception}";
 
+    // Singleton sink — shared between Serilog and the admin endpoint
+    public static readonly InMemorySink MemorySink = new(maxEntries: 500);
+
     public static WebApplicationBuilder AddSerilogLogging(
         this WebApplicationBuilder builder,
         string applicationName = "LMS.API")
@@ -54,9 +57,12 @@ public static class LoggingExtensions
                 fileSizeLimitBytes: 10_000_000,
                 retainedFileCountLimit: 30,
                 shared: true)
+            // ── NEW: in-memory sink for admin endpoint ────────
+            .WriteTo.Sink(MemorySink)
             .CreateLogger();
 
         builder.Host.UseSerilog(Log.Logger, dispose: true);
         return builder;
     }
 }
+
