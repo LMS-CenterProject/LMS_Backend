@@ -30,7 +30,7 @@ namespace LMS.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(CourseDto), 200)]
         [ProducesResponseType(404)]
-        [Authorize(Policy = "ReadCourse")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllCourses()
         {
             var result = await _mediator.Send(new GetAllCoursesQuery());
@@ -48,7 +48,7 @@ namespace LMS.API.Controllers
 
         // GET: api/Courses/{id}
         [HttpGet("{id}")]
-        [Authorize(Policy = "ReadCourse")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetCourseById(Guid id)
         {
             var result = await _mediator.Send(new GetCourseByIdQuery(id));
@@ -59,7 +59,7 @@ namespace LMS.API.Controllers
         [HttpGet("{id}/details")]
         [ProducesResponseType(typeof(CourseDetailDto), 200)]
         [ProducesResponseType(404)]
-        [Authorize(Policy = "ReadCourse")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetCourseDetails(Guid id)
         {
             var result = await _mediator.Send(new GetCourseDetailsQuery(id));
