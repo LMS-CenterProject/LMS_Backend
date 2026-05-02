@@ -38,8 +38,10 @@ namespace LMS.Infrastructure.Persistence.Repositories
             var normalizedSearch = search?.Trim();
             if (!string.IsNullOrWhiteSpace(normalizedSearch))
             {
-                var lower = normalizedSearch.ToLowerInvariant();
-                query = query.Where(u => u.FullName.ToLowerInvariant().Contains(lower) || u.Email.ToLowerInvariant().Contains(lower));
+                var pattern = $"%{normalizedSearch}%";
+                query = query.Where(u =>
+                    EF.Functions.Like(u.FullName, pattern) ||
+                    EF.Functions.Like(u.Email, pattern));
             }
 
             var totalCount = await query.CountAsync(ct);
