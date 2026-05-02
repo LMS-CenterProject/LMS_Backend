@@ -37,6 +37,8 @@ namespace LMS.Application.Features.Courses.Queries.GetCourseDetails
                 Level = course.Level,
                 InstructorId = course.InstructorId,
                 CategoryId = course.CategoryId,
+                InstructorName = course.Instructor.FullName,
+                CategoryName = course.Category.Name,
 
                 Sections = course.Sections
                     .OrderBy(s => s.OrderIndex)
