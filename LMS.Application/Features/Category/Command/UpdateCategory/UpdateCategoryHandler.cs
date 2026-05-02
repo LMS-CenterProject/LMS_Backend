@@ -21,9 +21,14 @@ namespace LMS.Application.Features.Category.Command.UpdateCategory
         public async Task Handle(UpdateCategoryCommand request, CancellationToken ct)
         {
             var category = await _repo.GetByIdAsync(request.Id, ct);
+
             if (category is null)
                 throw new Exception("Category not found");
+
+            category.Update(request.Name);
+
             _repo.Update(category);
+
             await _uow.SaveChangesAsync(ct);
         }
     }
