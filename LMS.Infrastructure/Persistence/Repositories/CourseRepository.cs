@@ -37,6 +37,8 @@ namespace LMS.Infrastructure.Persistence.Repositories
         public async Task<Course?> GetDetailsByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await DbSet
+                .Include(c => c.Instructor)
+                .Include(c => c.Category)
                 .Include(c => c.Sections)
                     .ThenInclude(s => s.Lessons)
                 .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted, cancellationToken);
