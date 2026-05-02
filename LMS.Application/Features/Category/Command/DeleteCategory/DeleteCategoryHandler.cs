@@ -24,7 +24,8 @@ namespace LMS.Application.Features.Category.Command.DeleteCategory
             if (category is null)
                 throw new Exception("Category not found");
 
-            _repo.Remove(category);
+            category.Delete();
+            _repo.Update(category);
             await _uow.SaveChangesAsync(ct);
         }
     }
