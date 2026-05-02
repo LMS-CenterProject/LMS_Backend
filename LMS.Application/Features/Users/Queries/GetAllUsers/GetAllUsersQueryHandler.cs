@@ -16,8 +16,8 @@ namespace LMS.Application.Features.Users.Queries.GetAllUsers
         public async Task<Result<PagedUsersDto>> Handle(
             GetAllUsersQuery query, CancellationToken ct)
         {
-            // Cap page size — never let client request unlimited data
-            var pageSize = Math.Min(query.PageSize, MaxPageSize);
+            // Keep pagination valid and cap page size.
+            var pageSize = Math.Clamp(query.PageSize, 1, MaxPageSize);
             var page = Math.Max(query.Page, 1);
 
             var (users, totalCount) = await uow.Users.GetAllPaginatedAsync(

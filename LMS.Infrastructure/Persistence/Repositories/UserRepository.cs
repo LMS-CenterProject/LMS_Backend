@@ -34,11 +34,14 @@ namespace LMS.Infrastructure.Persistence.Repositories
             // Filter by role
             if (role.HasValue)
                 query = query.Where(u => u.Role == role.Value);
-            if(string.IsNullOrWhiteSpace(search))
+
+            var normalizedSearch = search?.Trim();
+            if (!string.IsNullOrWhiteSpace(normalizedSearch))
             {
-                var lower=search.ToLowerInvariant();
+                var lower = normalizedSearch.ToLowerInvariant();
                 query = query.Where(u => u.FullName.ToLowerInvariant().Contains(lower) || u.Email.ToLowerInvariant().Contains(lower));
             }
+
             var totalCount = await query.CountAsync(ct);
             var users = await query
                 .OrderBy(u => u.FullName)
