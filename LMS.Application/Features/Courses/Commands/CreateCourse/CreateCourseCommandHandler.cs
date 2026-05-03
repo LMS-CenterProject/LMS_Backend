@@ -44,7 +44,8 @@ namespace LMS.Application.Courses.Commands.CreateCourse
                 request.Description,
                 request.Price,
                 request.Level,
-                request.Language);
+                request.Language,
+                request.ThumbnailUrl);
 
             await _courseRepository.AddAsync(course, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
