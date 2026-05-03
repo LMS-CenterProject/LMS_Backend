@@ -12,6 +12,7 @@ namespace LMS.Application.Features.Courses.Commands.CreateCourse
         Guid CategoryId,
         string Title,
         string? Description,
+        string? ThumbnailUrl,
         decimal Price,
         CourseLevel Level,
         string Language
