@@ -54,6 +54,7 @@ namespace LMS.Application.Features.Courses.Queries.GetCourseDetails
                             {
                                 Id = lesson.Id,
                                 Title = lesson.Title,
+                                SectionId = section.Id,
                                 DurationSeconds = lesson.DurationSeconds
                             })
                             .ToList()
