@@ -137,7 +137,8 @@ public static class DatabaseSeeder
             description: "Build production-ready REST APIs with ASP.NET Core 8, EF Core, JWT authentication, and Clean Architecture from scratch.",
             price: 49.99m,
             level: CourseLevel.Intermediate,
-            language: "English");
+            language: "English",
+            thumbnailUrl: "main.png");
 
         course1.Publish();
         await context.Courses.AddAsync(course1);
@@ -153,7 +154,8 @@ public static class DatabaseSeeder
             description: "Learn how to structure real-world .NET applications using Clean Architecture, CQRS, MediatR, and Domain-Driven Design principles.",
             price: 59.99m,
             level: CourseLevel.Advanced,
-            language: "English");
+            language: "English",
+            thumbnailUrl:"nature.png");
 
         course2.Publish();
         await context.Courses.AddAsync(course2);
@@ -169,7 +171,8 @@ public static class DatabaseSeeder
             description: "From linear regression to neural networks. Build real ML models using Python, scikit-learn, and TensorFlow.",
             price: 69.99m,
             level: CourseLevel.Beginner,
-            language: "English");
+            language: "English",
+            thumbnailUrl: "ml.png");
 
         course3.Publish();
         await context.Courses.AddAsync(course3);
@@ -185,7 +188,8 @@ public static class DatabaseSeeder
             description: "Learn React from zero. Components, hooks, state management, and building your first full React application.",
             price: 0m,
             level: CourseLevel.Beginner,
-            language: "English");
+            language: "English",
+            thumbnailUrl:"ai.png");
 
         course4.Publish();
         await context.Courses.AddAsync(course4);
@@ -201,7 +205,8 @@ public static class DatabaseSeeder
             description: "Build beautiful cross-platform mobile apps with Flutter and Dart. iOS and Android from a single codebase.",
             price: 44.99m,
             level: CourseLevel.Intermediate,
-            language: "Arabic");
+            language: "Arabic",
+            thumbnailUrl: "flutter.png");
 
         // Left as Draft intentionally — to test enrollment rejection
         await context.Courses.AddAsync(course5);
