@@ -13,11 +13,16 @@ namespace LMS.Application.DTOs.Course
         public string Title { get; set; } = string.Empty;
 
         public string? Description { get; set; }
-
+        public string CategoryName { get; set; } = string.Empty;
+        public Guid CategoryId { get; set; }
+        public string InstructorName { get; set; } = string.Empty;
+        public string? ThumbnailUrl { get; set; }
         public decimal Price { get; set; }
+        public int SectionCount { get; set; }
+        public int LessonCount { get; set; }
 
         public string Language { get; set; } = string.Empty;
 
-        public string Status { get; set; } = string.Empty;
+        public string Status { get; set; }
     }
 }

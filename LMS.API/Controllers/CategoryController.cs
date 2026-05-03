@@ -49,7 +49,7 @@ namespace LMS.API.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             await _mediator.Send(new DeleteCategoryCommand(id));
-            return NoContent();
+            return Ok("The Category has been deleted successfully.");
         }
     }
 }

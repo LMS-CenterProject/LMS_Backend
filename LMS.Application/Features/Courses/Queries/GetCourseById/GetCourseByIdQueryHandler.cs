@@ -33,7 +33,7 @@ namespace LMS.Application.Features.Courses.Queries.GetCourseById
                 Description = course.Description,
                 Price = course.Price,
                 Language = course.Language,
-                Status = course.Status.ToString()
+                Status = course.Status.ToString(),
             };
         }
     }

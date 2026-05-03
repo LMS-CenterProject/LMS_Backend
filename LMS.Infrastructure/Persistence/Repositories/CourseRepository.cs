@@ -22,6 +22,9 @@ namespace LMS.Infrastructure.Persistence.Repositories
         {
             return await DbSet
                 .Where(c => !c.IsDeleted)
+                .Include(c => c.Instructor)
+                .Include(c => c.Category).Include(s=> s.Sections)
+                    .ThenInclude(s => s.Lessons)
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync(cancellationToken);
         }
