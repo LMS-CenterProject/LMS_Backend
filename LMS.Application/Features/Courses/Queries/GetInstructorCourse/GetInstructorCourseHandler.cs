@@ -9,7 +9,7 @@ using System.Text;
 namespace LMS.Application.Features.Courses.Queries.GetInstructorCourse
 {
     public sealed class GetInstructorCoursesQueryHandler
-        : IRequestHandler<GetInstructorCoursesQuery, List<CourseDto>>
+        : IRequestHandler<GetInstructorCoursesQuery, List<CourseInstractorDto>>
     {
         private readonly ICourseRepository _courseRepository;
         private readonly ICurrentUserService _currentUserService;
@@ -20,7 +20,7 @@ namespace LMS.Application.Features.Courses.Queries.GetInstructorCourse
             _currentUserService = currentUserService;
         }
 
-        public async Task<List<CourseDto>> Handle(
+        public async Task<List<CourseInstractorDto>> Handle(
             GetInstructorCoursesQuery request,
             CancellationToken cancellationToken)
         {
@@ -35,11 +35,14 @@ namespace LMS.Application.Features.Courses.Queries.GetInstructorCourse
 
             var courses = await _courseRepository.GetByInstructorIdAsync(instructorId.Value, cancellationToken);
 
-            return courses.Select(course => new CourseDto
+            return courses.Select(course => new CourseInstractorDto
             {
                 Id = course.Id,
                 Title = course.Title,
                 Description = course.Description,
+                CategoryId = course.CategoryId,
+                CategoryName = course.Category.Name,
+                Thumbnail = course.ThumbnailUrl,
                 Price = course.Price,
                 Language = course.Language,
                 Status = course.Status.ToString()

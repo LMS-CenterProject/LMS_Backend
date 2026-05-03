@@ -47,7 +47,7 @@ namespace LMS.Domain.Entities
             string? description,
             decimal price,
             CourseLevel level,
-            string language)
+            string language,string? thumbnailUrl)
         {
             return new Course
             {
@@ -55,6 +55,7 @@ namespace LMS.Domain.Entities
                 CategoryId = categoryId,
                 Title = title.Trim(),
                 Description = description?.Trim(),
+                ThumbnailUrl = thumbnailUrl,
                 Price = price,
                 Level = level,
                 Language = language.Trim()

@@ -33,6 +33,7 @@ namespace LMS.Infrastructure.Persistence.Repositories
         {
             return await DbSet
                 .Where(c => c.InstructorId == instructorId && !c.IsDeleted)
+                .Include(c => c.Category)
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync(cancellationToken);
         }
