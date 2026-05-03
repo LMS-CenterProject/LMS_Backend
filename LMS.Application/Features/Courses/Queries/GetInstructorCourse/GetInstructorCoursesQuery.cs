@@ -7,6 +7,6 @@ using System.Text;
 namespace LMS.Application.Features.Courses.Queries.GetInstructorCourse
 {
     public sealed record GetInstructorCoursesQuery()
-        : IRequest<List<CourseDto>>;
+        : IRequest<List<CourseInstractorDto>>;
 
 }
