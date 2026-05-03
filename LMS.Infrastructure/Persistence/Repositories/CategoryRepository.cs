@@ -17,5 +17,10 @@ namespace LMS.Infrastructure.Persistence.Repositories
         {
             return await DbSet.AnyAsync(c => c.Name == name, ct);
         }
+        public async Task<Category?> GetByIdAsync(Guid id, CancellationToken ct)
+        {
+            return await DbSet
+                .FirstOrDefaultAsync(c => c.Id == id, ct);
+        }
     }
 }

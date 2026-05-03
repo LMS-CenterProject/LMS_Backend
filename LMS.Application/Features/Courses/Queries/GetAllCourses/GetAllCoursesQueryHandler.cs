@@ -24,9 +24,15 @@ namespace LMS.Application.Features.Courses.Queries.GetAllCourses
                 Id = c.Id,
                 Title = c.Title,
                 Description = c.Description,
-                Price = c.Price,
-                Language = c.Language,
-                Status = c.Status.ToString()
+                ThumbnailUrl = c.ThumbnailUrl,
+                InstructorName = c.Instructor.FullName,
+                CategoryName = c.Category.Name,
+                CategoryId = c.Category.Id,
+                Price = c.Price,    
+                Language = c.Language,          
+                Status = c.Status.ToString(),
+                SectionCount = c.Sections.Count(),
+                LessonCount = c.Sections.Sum(s => s.Lessons.Count())
 
             }).ToList();
 
