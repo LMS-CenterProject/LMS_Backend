@@ -8,15 +8,16 @@ using System.Text;
 namespace LMS.Application.Features.Courses.Commands.CreateCourse
 {
     public sealed record CreateCourseCommand(
-        Guid InstructorId,
-        Guid CategoryId,
-        string Title,
-        string? Description,
-        string? ThumbnailUrl,
-        decimal Price,
-        CourseLevel Level,
-        string Language
-    ) : IRequest<CreateCourseResponse>;
+       Guid? InstructorId,   // null  → use caller's own ID (Instructor role)
+                             // value → assign to this instructor (Admin only)
+       Guid CategoryId,
+       string Title,
+       string? Description,
+       string? ThumbnailUrl,
+       decimal Price,
+       CourseLevel Level,
+       string Language
+   ) : IRequest<CreateCourseResponse>;
 
 
 

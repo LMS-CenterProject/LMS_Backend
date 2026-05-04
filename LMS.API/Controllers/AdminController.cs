@@ -3,6 +3,7 @@ using LMS.Application.DTOs;
 using LMS.Application.Features.Admin.Command.ActivateUser;
 using LMS.Application.Features.Admin.Command.ChangeUserRole;
 using LMS.Application.Features.Admin.Command.DeactivateUser;
+using LMS.Application.Features.Admin.Queries.SearchInstructors;
 using LMS.Application.Features.Users.Queries.GetAllUsers;
 using LMS.Domain.Enums;
 using MediatR;
@@ -20,6 +21,35 @@ namespace LMS.API.Controllers
         ICurrentUserService currentUserService,
         ILogger<AdminController> logger) : ControllerBase
     {
+
+        /// <summary>
+        /// Search for instructors to assign to a course.
+        /// Returns only users with the Instructor role.
+        /// </summary>
+        /// <param name="search">Search by name or email (optional)</param>
+        /// <param name="page">Page number (default: 1)</param>
+        /// <param name="pageSize">Items per page, max 50 (default: 20)</param>
+        [HttpGet("instructors")]
+        [ProducesResponseType(typeof(PagedUsersDto), StatusCodes.Status200OK)]
+        public async Task<IActionResult> SearchInstructors(
+            [FromQuery] string? search = null,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20,
+            CancellationToken ct = default)
+        {
+            logger.LogInformation(
+                "Admin {AdminUser} searching instructors: search={Search}, page={Page}",
+                GetActorLabel(), search ?? "<none>", page);
+
+            var result = await sender.Send(
+                new SearchInstructorsQuery(search, page, pageSize), ct);
+
+            return result.IsSuccess
+                ? Ok(result.Value)
+                : BadRequest(result.Error.Description);
+        }
+
+
         /// <summary>
         /// Get all users with pagination, optional search and role filter.
         /// </summary>
