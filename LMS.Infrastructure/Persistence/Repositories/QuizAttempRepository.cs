@@ -34,7 +34,16 @@ namespace LMS.Infrastructure.Persistence.Repositories
                 .Where(a => a.QuizId == quizId)
                 .ToListAsync(ct);
         }
-
+        public async Task<List<QuizAttempt>> GetByStudentAndQuizAsync(
+            Guid studentId,
+            Guid quizId,
+            CancellationToken ct)
+        {
+            return await _context.QuizAttempts
+                .Where(a => a.StudentId == studentId && a.QuizId == quizId)
+                .OrderBy(a => a.AttemptedAt)
+                .ToListAsync(ct);
+        }
         public async Task<bool> HasStudentAttemptedAsync(
             Guid studentId,
             Guid quizId,
@@ -54,6 +63,12 @@ namespace LMS.Infrastructure.Persistence.Repositories
                 .AnyAsync(x => x.StudentId == studentId
                             && x.QuizId == quizId
                             && x.Passed, ct);
+        }
+        public async Task AddAsync(QuizAttempt attempt, CancellationToken ct)
+        {
+            // EF Core tracks the child QuizAttemptAnswer rows automatically
+            // because they are added to attempt._answers before Add is called.
+            await _context.QuizAttempts.AddAsync(attempt, ct);
         }
     }
 }

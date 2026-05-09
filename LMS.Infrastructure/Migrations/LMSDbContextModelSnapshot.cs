@@ -407,6 +407,33 @@ namespace LMS.Infrastructure.Migrations
                     b.ToTable("QuizAttempts");
                 });
 
+            modelBuilder.Entity("LMS.Domain.Entities.QuizAttemptAnswer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AnswerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("QuizAttemptId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnswerId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("QuizAttemptId", "QuestionId", "AnswerId")
+                        .IsUnique();
+
+                    b.ToTable("QuizAttemptAnswers");
+                });
+
             modelBuilder.Entity("LMS.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -749,6 +776,33 @@ namespace LMS.Infrastructure.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("LMS.Domain.Entities.QuizAttemptAnswer", b =>
+                {
+                    b.HasOne("LMS.Domain.Entities.Answer", "Answer")
+                        .WithMany()
+                        .HasForeignKey("AnswerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("LMS.Domain.Entities.Question", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("LMS.Domain.Entities.QuizAttempt", "Attempt")
+                        .WithMany("Answers")
+                        .HasForeignKey("QuizAttemptId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Answer");
+
+                    b.Navigation("Attempt");
+
+                    b.Navigation("Question");
+                });
+
             modelBuilder.Entity("LMS.Domain.Entities.RefreshToken", b =>
                 {
                     b.HasOne("LMS.Domain.Entities.User", "User")
@@ -822,6 +876,11 @@ namespace LMS.Infrastructure.Migrations
                     b.Navigation("Attempts");
 
                     b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("LMS.Domain.Entities.QuizAttempt", b =>
+                {
+                    b.Navigation("Answers");
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Section", b =>

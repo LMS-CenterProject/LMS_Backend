@@ -7,5 +7,5 @@ using System.Text;
 namespace LMS.Application.Features.Question.Query.GetQuestionByQuizId
 {
     public record GetQuestionByQuizIdQuery(Guid QuizId)
-    : IRequest<List<QuestionDto>>;
+    : IRequest<List<QuestionWithAnswersDto>>;
 }

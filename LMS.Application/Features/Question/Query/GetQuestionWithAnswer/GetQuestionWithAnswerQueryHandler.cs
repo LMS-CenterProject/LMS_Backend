@@ -39,7 +39,6 @@ namespace LMS.Application.Features.Question.Query.GetQuestionWithAnswer
                 {
                     Id = a.Id,
                     Text = a.Text,
-                    IsCorrect = a.IsCorrect
                 }).ToList()
             };
         }

@@ -17,6 +17,7 @@
     <Folder Include="Caching\" />
     <Folder Include="Logging\" />
     <Folder Include="Configurations\" />
+    <Folder Include="Migrations\" />
     <Folder Include="Services\Email\" />
     <Folder Include="Services\Storage\" />
   </ItemGroup>

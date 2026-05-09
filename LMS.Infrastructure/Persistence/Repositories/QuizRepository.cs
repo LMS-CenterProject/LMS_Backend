@@ -31,6 +31,7 @@ public sealed class QuizRepository
     {
         return await _context.Quizzes
             .Where(q => q.CourseId == courseId)
+            .Include(q => q.Questions)
             .ToListAsync(ct);
     }
 }

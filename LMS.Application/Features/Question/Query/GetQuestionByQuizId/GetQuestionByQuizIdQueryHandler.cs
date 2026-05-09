@@ -1,4 +1,5 @@
-﻿using LMS.Application.DTOs.Question;
+﻿using LMS.Application.DTOs.Answers;
+using LMS.Application.DTOs.Question;
 using LMS.Domain.Interfaces.Repositories;
 using MediatR;
 using System;
@@ -8,7 +9,7 @@ using System.Text;
 namespace LMS.Application.Features.Question.Query.GetQuestionByQuizId
 {
     public class GetQuestionsByQuizIdQueryHandler
-    : IRequestHandler<GetQuestionByQuizIdQuery, List<QuestionDto>>
+    : IRequestHandler<GetQuestionByQuizIdQuery, List<QuestionWithAnswersDto>>
     {
         private readonly IQuestionRepository _questionRepository;
 
@@ -17,19 +18,24 @@ namespace LMS.Application.Features.Question.Query.GetQuestionByQuizId
             _questionRepository = questionRepository;
         }
 
-        public async Task<List<QuestionDto>> Handle(
+        public async Task<List<QuestionWithAnswersDto>> Handle(
             GetQuestionByQuizIdQuery request,
             CancellationToken ct)
         {
             var questions = await _questionRepository.GetByQuizIdAsync(request.QuizId, ct);
 
-            return questions.Select(q => new QuestionDto
+            return questions.Select(q => new QuestionWithAnswersDto
             {
                 Id = q.Id,
                 QuizId = q.QuizId,
                 Text = q.Text,
                 Type = q.Type.ToString(),
-                Points = q.Points
+                Points = q.Points,
+                Answers = q.Answers.Select(a => new AnswerDto
+                {
+                    Id = a.Id,
+                    Text = a.Text,
+                }).ToList()
             }).ToList();
         }
     }

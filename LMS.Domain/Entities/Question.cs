@@ -50,6 +50,21 @@ namespace LMS.Domain.Entities
                 ? Answers.Count == 2 && Answers.Count(a => a.IsCorrect) == 1
                 : Type == QuestionType.SingleChoice
                     ? Answers.Count(a => a.IsCorrect) == 1
-                    : Answers.Any(a => a.IsCorrect);   // MultiChoice: at least one correct
+                : Answers.Any(a => a.IsCorrect);   // MultiChoice: at least one correct
+
+
+        public void AddAnswer(string text, bool isCorrect)
+    {
+        var answer = Answer.Create(this.Id, text, isCorrect);
+        Answers.Add(answer);
     }
+        public void AddAnswers(IEnumerable<(string text, bool isCorrect)> answers)
+        {
+            foreach (var a in answers)
+            {
+                Answers.Add(Answer.Create(this.Id, a.text, a.isCorrect));
+            }
+        }
+    }
+
 }

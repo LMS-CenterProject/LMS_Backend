@@ -7,8 +7,13 @@ namespace LMS.Application.Features.Quiz.Command.SubmitQuiz
     using LMS.Application.DTOs.Quize;
     using MediatR;
 
+    public record SelectedAnswer(
+        Guid QuestionId,
+        Guid AnswerId
+    );
+
     public record SubmitQuizCommand(
         Guid QuizId,
-        Dictionary<Guid, List<Guid>> Answers
+        List<SelectedAnswer> Answers
     ) : IRequest<QuizResultDto>;
 }
