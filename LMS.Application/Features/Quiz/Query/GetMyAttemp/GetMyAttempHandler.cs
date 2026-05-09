@@ -26,18 +26,23 @@ namespace LMS.Application.Features.Quiz.Query.GetMyAttemp
             GetMyAttemptsQuery request,
             CancellationToken ct)
         {
-            var studentId = _currentUser.UserId!.Value;
+            if (!_currentUser.UserId.HasValue)
+                throw new UnauthorizedAccessException("User is not authenticated.");
 
-            var attempts = await _repo.GetByStudentIdAsync(studentId, ct);
+            var studentId = _currentUser.UserId.Value;
+            var attempts = await _repo
+                .GetByStudentIdAsync(studentId, ct);
 
-            return attempts.Select(a => new QuizAttemptDto
-            {
-                Id = a.Id,
-                QuizId = a.QuizId,
-                Score = a.Score,
-                Passed = a.Passed,
-                AttemptedAt = a.AttemptedAt
-            }).ToList();
+            return attempts
+                .Select(a => new QuizAttemptDto
+                {
+                    Id = a.Id,           
+                    QuizId = a.QuizId,
+                    Score = a.Score,
+                    Passed = a.Passed,
+                    AttemptedAt = a.AttemptedAt
+                })
+                .ToList();
         }
     }
 }

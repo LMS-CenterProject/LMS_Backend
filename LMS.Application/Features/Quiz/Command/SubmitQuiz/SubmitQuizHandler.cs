@@ -5,10 +5,12 @@ using LMS.Domain.Entities;
 using LMS.Domain.Interfaces;
 using LMS.Domain.Interfaces.Repositories;
 using MediatR;
+using System.Linq.Expressions;
 
 public class SubmitQuizCommandHandler
     : IRequestHandler<SubmitQuizCommand, QuizResultDto>
 {
+    private const int MaxAttempts = 3;
     private readonly IQuizRepository _quizRepository;
     private readonly IQuizAttemptRepository _attemptRepository;
     private readonly ICurrentUserService _currentUser;
@@ -30,8 +32,8 @@ public class SubmitQuizCommandHandler
     }
 
     public async Task<QuizResultDto> Handle(
-    SubmitQuizCommand request,
-    CancellationToken ct)
+        SubmitQuizCommand request,
+        CancellationToken ct)
     {
         if (!_currentUser.UserId.HasValue)
             throw new UnauthorizedAccessException();
@@ -51,38 +53,60 @@ public class SubmitQuizCommandHandler
         if (!isEnrolled)
             throw new Exception("You are not enrolled in this course");
 
-        // Check attempts count (optimized)
-        var attemptCount = await _attemptRepository
-            .CountAttemptsAsync(studentId, request.QuizId, ct);
+        // Check attempts count
+        var previousAttempts = await _attemptRepository
+                .GetByStudentAndQuizAsync(studentId, request.QuizId, ct);
 
-        if (attemptCount >= 3)
-            throw new Exception("Max attempts reached");
+        if (previousAttempts.Count >= MaxAttempts)
+            throw new Exception(
+                $"You have reached the maximum of {MaxAttempts} attempts for this quiz.");
 
-        var hasPassed = await _attemptRepository
-            .HasPassedAsync(studentId, request.QuizId, ct);
+        if (previousAttempts.Any(a => a.Passed))
+            throw new Exception("You have already passed this quiz.");
 
-        if (hasPassed)
-            throw new Exception("You already passed this quiz");
+        // Validate all questions were answered
+        var submittedQuestionIds = request.Answers
+                .Select(a => a.QuestionId)
+                .ToHashSet();
 
-        if (request.Answers == null || !request.Answers.Any())
-            throw new Exception("Answers cannot be empty");
+        var quizQuestionIds = quiz.Questions
+            .Select(q => q.Id)
+            .ToHashSet();
 
-        var (score, passed) = quiz.Grade(request.Answers);
+        if (!quizQuestionIds.SetEquals(submittedQuestionIds))
+        {
+            var missing = quizQuestionIds.Except(submittedQuestionIds);
+            throw new Exception(
+                $"Missing answers for {missing.Count()} question(s). All questions must be answered.");
+        }
+
+        // Grade the quiz
+        // Correctly group multiple answers for the same question (e.g., multi-choice questions)
+        var answersDictionary = request.Answers
+            .GroupBy(a => a.QuestionId)
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(x => x.AnswerId).ToList());
+
+        var (score, passed) = quiz.Grade(answersDictionary);
 
         var attempt = QuizAttempt.Create(
-            request.QuizId,
-            studentId,
-            score,
-            passed);
+                request.QuizId,
+                studentId,
+                score,
+                passed,
+                answersDictionary);       // ← new parameter
 
         await _attemptRepository.AddAsync(attempt, ct);
-
         await _unitOfWork.SaveChangesAsync(ct);
 
+        // Return richer DTO ──────────────────────────────────────────────
         return new QuizResultDto
         {
+            AttemptId = attempt.Id,
             Score = score,
-            Passed = passed
+            Passed = passed,
+            RemainingAttempts = MaxAttempts - (previousAttempts.Count + 1)
         };
     }
 }

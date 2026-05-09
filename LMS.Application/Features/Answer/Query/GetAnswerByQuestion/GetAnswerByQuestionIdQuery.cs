@@ -8,5 +8,5 @@ namespace LMS.Application.Features.Answer.Query.GetAnswerByQuestion
 {
     public sealed record GetAnswerByQuestionIdQuery(
         Guid QuestionId
-    ) : IRequest<List<AnswerDto>>;
+    ) : IRequest<List<AnswerQuestionDto>>;
 }

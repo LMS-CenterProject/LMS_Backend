@@ -31,19 +31,14 @@ namespace LMS.Application.Features.Quiz.Query.GetQuiz
                 Id = quiz.Id,
                 Title = quiz.Title,
                 CourseId = quiz.CourseId,
-
+                TimeLimitMinutes = quiz.TimeLimitMinutes,
                 Questions = quiz.Questions.Select(q => new QuestionDto
                 {
                     Id = q.Id,
+                    QuizId = q.QuizId,
                     Text = q.Text,
                     Type = q.Type.ToString(),
                     Points = q.Points,
-
-                    Answers = q.Answers.Select(a => new AnswerDto
-                    {
-                        Id = a.Id,
-                        Text = a.Text
-                    }).ToList()
                 }).ToList()
             };
         }

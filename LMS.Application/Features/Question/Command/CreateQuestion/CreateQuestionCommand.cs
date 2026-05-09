@@ -1,4 +1,5 @@
-﻿using LMS.Domain.Enums;
+﻿using LMS.Application.DTOs.Answers;
+using LMS.Domain.Enums;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -11,5 +12,6 @@ namespace LMS.Application.Features.Question.Command.CreateQuestion
     string Text,
     QuestionType Type,
     int Points
+    //List<AnswerDto> Answers
 ) : IRequest<Guid>;
 }

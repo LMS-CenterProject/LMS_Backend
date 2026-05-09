@@ -1,4 +1,5 @@
 ﻿using LMS.Application.DTOs.Answers;
+using LMS.Domain.Enums;
 using LMS.Domain.Interfaces.Repositories;
 using MediatR;
 using System;
@@ -8,7 +9,7 @@ using System.Text;
 namespace LMS.Application.Features.Answer.Query.GetAnswerByQuestion
 {
     public sealed class GetAnswerByQuestionIdQueryHandler
-        : IRequestHandler<GetAnswerByQuestionIdQuery, List<AnswerDto>>
+        : IRequestHandler<GetAnswerByQuestionIdQuery, List<AnswerQuestionDto>>
     {
         private readonly IAnswerRepository _answerRepository;
 
@@ -18,17 +19,16 @@ namespace LMS.Application.Features.Answer.Query.GetAnswerByQuestion
             _answerRepository = answerRepository;
         }
 
-        public async Task<List<AnswerDto>> Handle(
+        public async Task<List<AnswerQuestionDto>> Handle(
             GetAnswerByQuestionIdQuery request,
             CancellationToken cancellationToken)
         {
             var answers = await _answerRepository
                 .GetByQuestionIdAsync(request.QuestionId, cancellationToken);
 
-            return answers.Select(a => new AnswerDto
+            return answers.Select(a => new AnswerQuestionDto
             {
                 Id = a.Id,
-                QuestionId = a.QuestionId,
                 Text = a.Text,
                 IsCorrect = a.IsCorrect
             }).ToList();
