@@ -15,6 +15,7 @@ public static class DatabaseSeeder
             await SeedCategoriesAsync(context, logger);
             await SeedTagsAsync(context, logger);
             await SeedCoursesAsync(context, logger);
+            await SeedQuizzesAsync(context, logger);
         }
         catch (Exception ex)
         {
@@ -133,7 +134,7 @@ public static class DatabaseSeeder
         var course1 = Course.Create(
             instructorId: ahmed.Id,
             categoryId: webDev.Id,
-            title: "ASP.NET Core Web API — Complete Guide",
+            title: "ASP.NET Core",
             description: "Build production-ready REST APIs with ASP.NET Core 8, EF Core, JWT authentication, and Clean Architecture from scratch.",
             price: 49.99m,
             level: CourseLevel.Intermediate,
@@ -374,6 +375,259 @@ public static class DatabaseSeeder
         await context.SaveChangesAsync();
     }
 
+    // QuizSeeding
+    private static async Task SeedQuizzesAsync(LMSDbContext context, ILogger logger)
+    {
+        if (await context.Quizzes.AnyAsync())
+        {
+            logger.LogInformation("Quizzes already seeded — skipping.");
+            return;
+
+        }
+
+        // Load courses created in DatabaseSeeder
+        var course1 = await context.Courses.FirstAsync(c => c.Title.Contains("ASP.NET Core"));
+        var course2 = await context.Courses.FirstAsync(c => c.Title.Contains("Clean Architecture"));
+        var course3 = await context.Courses.FirstAsync(c => c.Title.Contains("Machine Learning"));
+
+        // ── Quiz 1: ASP.NET Core Basics (PassScore = 70) ─────────────────────────
+        // Scenario: Student answers everything correct → Score 100, Passed
+        // Scenario: Student answers 2/4 correct     → Score 50,  Failed
+        // Scenario: Student answers 3/4 correct     → Score 75,  Passed
+
+        var quiz1 = Quiz.Create(
+            courseId: course1.Id,
+            title: "ASP.NET Core Fundamentals Quiz",
+            passScore: 70,
+            timeLimitMinutes: 20);
+
+        // Q1 — SingleChoice (Points = 1)
+        // Correct: B (HTTP is stateless)
+        var q1 = Question.Create(quiz1.Id, "What does HTTP stand for?", QuestionType.SingleChoice, points: 1);
+        q1.AddAnswers(new[]
+        {
+            ("HyperText Transfer Protocol",  true),   // ← correct
+            ("High Transfer Text Protocol",  false),
+            ("HyperText Transmission Path",  false),
+            ("Hyper Transfer Text Process",  false),
+        });
+
+        // Q2 — SingleChoice (Points = 1)
+        // Correct: C (200 = OK)
+        var q2 = Question.Create(quiz1.Id, "Which HTTP status code means the request was successful?", QuestionType.SingleChoice, points: 1);
+        q2.AddAnswers(new[]
+        {
+            ("301", false),
+            ("404", false),
+            ("200", true),    // ← correct
+            ("500", false),
+        });
+
+        // Q3 — SingleChoice (Points = 2)
+        // Higher points — worth more in score calculation
+        var q3 = Question.Create(quiz1.Id, "Which HTTP method is used to UPDATE an existing resource?", QuestionType.SingleChoice, points: 2);
+        q3.AddAnswers(new[]
+        {
+            ("GET",    false),
+            ("POST",   false),
+            ("DELETE", false),
+            ("PUT",    true),    // ← correct
+        });
+
+        // Q4 — MultiChoice (Points = 2)
+        // Student must select BOTH correct answers — all-or-nothing
+        var q4 = Question.Create(quiz1.Id, "Which of the following are valid HTTP methods? (Select all that apply)", QuestionType.MultiChoice, points: 2);
+        q4.AddAnswers(new[]
+        {
+            ("GET",    true),    // ← correct
+            ("FETCH",  false),
+            ("POST",   true),    // ← correct
+            ("SEND",   false),
+        });
+
+        quiz1.Questions.Add(q1);  // This adds q1 to the in-memory collection
+        quiz1.Questions.Add(q2);
+        quiz1.Questions.Add(q3);
+        quiz1.Questions.Add(q4);
+
+        await context.Quizzes.AddAsync(quiz1);
+        await context.SaveChangesAsync();  // Everything saves together
+
+       
+
+        // ── Score scenarios for Quiz 1 ────────────────────────────────────────────
+        // totalPoints = 1 + 1 + 2 + 2 = 6
+        //
+        // Student gets ALL correct:
+        //   earnedPoints = 6 → score = 6/6 × 100 = 100 → Passed ✅
+        //
+        // Student gets Q1 + Q2 only:
+        //   earnedPoints = 1 + 1 = 2 → score = 2/6 × 100 = 33 → Failed ❌
+        //
+        // Student gets Q1 + Q2 + Q3:
+        //   earnedPoints = 1 + 1 + 2 = 4 → score = 4/6 × 100 = 67 → Failed ❌ (just under 70)
+        //
+        // Student gets Q1 + Q3 + Q4:
+        //   earnedPoints = 1 + 2 + 2 = 5 → score = 5/6 × 100 = 83 → Passed ✅
+
+
+        // ── Quiz 2: Clean Architecture (PassScore = 80, harder) ──────────────────
+
+        var quiz2 = Quiz.Create(
+            courseId: course2.Id,
+            title: "Clean Architecture Concepts Quiz",
+            passScore: 80,
+            timeLimitMinutes: 15);
+
+        // Q1 — TrueFalse (Points = 1)
+        var q5 = Question.Create(quiz2.Id, "In Clean Architecture, the Domain layer can depend on the Infrastructure layer.", QuestionType.TrueFalse, points: 1);
+        q5.AddAnswers(new[]
+        {
+            ("True",  false),
+            ("False", true),    // ← correct — Domain has NO dependencies
+        });
+
+        // Q2 — SingleChoice (Points = 2)
+        var q6 = Question.Create(quiz2.Id, "Which pattern does MediatR implement?", QuestionType.SingleChoice, points: 2);
+        q6.AddAnswers(new[]
+        {
+            ("Repository",  false),
+            ("Mediator",    true),    // ← correct
+            ("Observer",    false),
+            ("Singleton",   false),
+        });
+
+        // Q3 — SingleChoice (Points = 2)
+        var q7 = Question.Create(quiz2.Id, "In CQRS, what does a Command do?", QuestionType.SingleChoice, points: 2);
+        q7.AddAnswers(new[]
+        {
+            ("Reads data from the database",       false),
+            ("Changes state / writes data",        true),    // ← correct
+            ("Handles authentication",             false),
+            ("Maps objects to database tables",    false),
+        });
+
+        // Q4 — MultiChoice (Points = 3)
+        // Must select ALL 3 correct options
+        var q8 = Question.Create(quiz2.Id, "Which of these belong to the Application layer? (Select all that apply)", QuestionType.MultiChoice, points: 3);
+        q8.AddAnswers(new[]
+        {
+            ("Commands",          true),     // ← correct
+            ("DbContext",         false),
+            ("Queries",           true),     // ← correct
+            ("DTOs",              true),     // ← correct
+            ("EF Core Configs",   false),
+        });
+
+        quiz2.Questions.Add(q5);
+        quiz2.Questions.Add(q6);
+        quiz2.Questions.Add(q7);
+        quiz2.Questions.Add(q8);
+
+        await context.Quizzes.AddAsync(quiz2);
+        await context.SaveChangesAsync();
+
+        // ── Score scenarios for Quiz 2 ────────────────────────────────────────────
+        // totalPoints = 1 + 2 + 2 + 3 = 8
+        //
+        // Student gets ALL correct:
+        //   earnedPoints = 8 → score = 100 → Passed ✅
+        //
+        // Student gets Q1 + Q2 + Q3 (misses multi-choice):
+        //   earnedPoints = 1 + 2 + 2 = 5 → score = 5/8 × 100 = 63 → Failed ❌
+        //
+        // Student gets Q2 + Q3 + Q4:
+        //   earnedPoints = 2 + 2 + 3 = 7 → score = 7/8 × 100 = 88 → Passed ✅
+        //
+        // Student gets only Q4 (multi-choice, highest points):
+        //   earnedPoints = 3 → score = 3/8 × 100 = 38 → Failed ❌
+
+
+        // ── Quiz 3: Python ML Basics (PassScore = 60, easier) ────────────────────
+
+        var quiz3 = Quiz.Create(
+            courseId: course3.Id,
+            title: "Machine Learning Basics Quiz",
+            passScore: 60,
+            timeLimitMinutes: 30);
+
+        // Q1 — TrueFalse (Points = 1)
+        var q9 = Question.Create(quiz3.Id, "Supervised learning requires labeled training data.", QuestionType.TrueFalse, points: 1);
+        q9.AddAnswers(new[]
+        {
+            ("True",  true),    // ← correct
+            ("False", false),
+        });
+
+        // Q2 — SingleChoice (Points = 1)
+        var q10 = Question.Create(quiz3.Id, "Which Python library is commonly used for data manipulation?", QuestionType.SingleChoice, points: 1);
+        q10.AddAnswers(new[]
+        {
+            ("NumPy",      false),
+            ("Pandas",     true),    // ← correct
+            ("Matplotlib", false),
+            ("Flask",      false),
+        });
+
+        // Q3 — SingleChoice (Points = 2)
+        var q11 = Question.Create(quiz3.Id, "What is overfitting in Machine Learning?", QuestionType.SingleChoice, points: 2);
+        q11.AddAnswers(new[]
+        {
+            ("Model performs well on training data but poorly on new data", true),   // ← correct
+            ("Model performs poorly on both training and test data",        false),
+            ("Model is too simple to capture patterns",                    false),
+            ("Model has too few parameters",                               false),
+        });
+
+        // Q4 — MultiChoice (Points = 2)
+        var q12 = Question.Create(quiz3.Id, "Which of these are supervised learning algorithms? (Select all that apply)", QuestionType.MultiChoice, points: 2);
+        q12.AddAnswers(new[]
+        {
+            ("Linear Regression",   true),    // ← correct
+            ("K-Means Clustering",  false),
+            ("Decision Tree",       true),    // ← correct
+            ("PCA",                 false),
+        });
+
+        // Q5 — SingleChoice (Points = 2)
+        var q13 = Question.Create(quiz3.Id, "What does a confusion matrix measure?", QuestionType.SingleChoice, points: 2);
+        q13.AddAnswers(new[]
+        {
+            ("Model training speed",              false),
+            ("Classification model performance",  true),    // ← correct
+            ("Data preprocessing quality",        false),
+            ("Feature importance",                false),
+        });
+
+        quiz3.Questions.Add(q9);
+        quiz3.Questions.Add(q10);
+        quiz3.Questions.Add(q11);
+        quiz3.Questions.Add(q12);
+        quiz3.Questions.Add(q13);
+
+        await context.Quizzes.AddAsync(quiz3);
+        await context.SaveChangesAsync();
+        // ── Score scenarios for Quiz 3 ────────────────────────────────────────────
+        // totalPoints = 1 + 1 + 2 + 2 + 2 = 8
+        //
+        // Student gets ALL correct:
+        //   earnedPoints = 8 → score = 100 → Passed ✅
+        //
+        // Student gets Q1 + Q2 only:
+        //   earnedPoints = 1 + 1 = 2 → score = 25 → Failed ❌
+        //
+        // Student gets Q1 + Q2 + Q3:
+        //   earnedPoints = 1 + 1 + 2 = 4 → score = 50 → Failed ❌ (just under 60)
+        //
+        // Student gets Q1 + Q2 + Q3 + Q5:
+        //   earnedPoints = 1 + 1 + 2 + 2 = 6 → score = 75 → Passed ✅
+        //
+        // Student selects only ONE answer in Q4 (MultiChoice needs BOTH):
+        //   earnedPoints for Q4 = 0 → all-or-nothing
+
+
+        logger.LogInformation("Seeded 3 quizzes with 12 questions total.");
+    }
     // ── Helper ─────────────────────────────────────────────────────
 
     private static User CreateUser(

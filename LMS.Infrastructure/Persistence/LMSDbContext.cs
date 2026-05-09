@@ -26,6 +26,7 @@ namespace LMS.Infrastructure.Persistence
         public DbSet<Question> Questions => Set<Question>();
         public DbSet<Answer> Answers => Set<Answer>();
         public DbSet<QuizAttempt> QuizAttempts => Set<QuizAttempt>();
+        public DbSet<QuizAttemptAnswer> QuizAttemptAnswers => Set<QuizAttemptAnswer>();
         public DbSet<Review> Reviews => Set<Review>();
         public DbSet<Notification> Notifications => Set<Notification>();
 
@@ -61,6 +62,18 @@ namespace LMS.Infrastructure.Persistence
                 .HasForeignKey(e => e.CourseId)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            modelBuilder.Entity<Question>()
+                .HasOne(q => q.Quiz)
+                .WithMany(quiz => quiz.Questions)
+                .HasForeignKey(q => q.QuizId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Answer>()
+                .HasOne(a => a.Question)
+                .WithMany(q => q.Answers)
+                .HasForeignKey(a => a.QuestionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<QuizAttempt>()
                 .HasOne(a => a.Student)
                 .WithMany()
@@ -71,6 +84,22 @@ namespace LMS.Infrastructure.Persistence
                 .HasOne(a => a.Quiz)
                 .WithMany(q => q.Attempts)
                 .HasForeignKey(a => a.QuizId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<QuizAttemptAnswer>()
+                .HasOne(qa => qa.Attempt)
+                .WithMany(a => a.Answers)
+                .HasForeignKey(qa => qa.QuizAttemptId)
+                .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<QuizAttemptAnswer>()
+                .HasOne(x => x.Question)
+                .WithMany()
+                .HasForeignKey(x => x.QuestionId)
+                .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<QuizAttemptAnswer>()
+                .HasOne(x => x.Answer)
+                .WithMany()
+                .HasForeignKey(x => x.AnswerId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Review>()
@@ -103,6 +132,9 @@ namespace LMS.Infrastructure.Persistence
 
             modelBuilder.Entity<RefreshToken>()
                 .HasIndex(rt => rt.Token).IsUnique();
+            modelBuilder.Entity<QuizAttemptAnswer>()
+                .HasIndex(x => new { x.QuizAttemptId, x.QuestionId, x.AnswerId })
+                .IsUnique();
 
             // ── Enum to string conversions ────────────────────────────
             modelBuilder.Entity<User>()
