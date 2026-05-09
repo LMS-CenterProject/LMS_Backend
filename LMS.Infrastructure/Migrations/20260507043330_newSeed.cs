@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace LMS.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class newSeed : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,7 +17,11 @@ namespace LMS.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ParentCategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    ParentCategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -78,6 +82,8 @@ namespace LMS.Infrastructure.Migrations
                     Language = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ThumbnailUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TotalWatchSeconds = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -249,7 +255,8 @@ namespace LMS.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CourseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    OrderIndex = table.Column<int>(type: "int", nullable: false)
+                    OrderIndex = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -337,6 +344,7 @@ namespace LMS.Infrastructure.Migrations
                     SectionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ContentUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     ContentType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DurationSeconds = table.Column<int>(type: "int", nullable: false),
                     OrderIndex = table.Column<int>(type: "int", nullable: false),
@@ -397,6 +405,35 @@ namespace LMS.Infrastructure.Migrations
                         name: "FK_LessonProgresses_Lessons_LessonId",
                         column: x => x.LessonId,
                         principalTable: "Lessons",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "QuizAttemptAnswers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    QuizAttemptId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    QuestionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AnswerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_QuizAttemptAnswers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_QuizAttemptAnswers_Answers_AnswerId",
+                        column: x => x.AnswerId,
+                        principalTable: "Answers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_QuizAttemptAnswers_Questions_QuestionId",
+                        column: x => x.QuestionId,
+                        principalTable: "Questions",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_QuizAttemptAnswers_QuizAttempts_QuizAttemptId",
+                        column: x => x.QuizAttemptId,
+                        principalTable: "QuizAttempts",
                         principalColumn: "Id");
                 });
 
@@ -469,6 +506,22 @@ namespace LMS.Infrastructure.Migrations
                 column: "QuizId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_QuizAttemptAnswers_AnswerId",
+                table: "QuizAttemptAnswers",
+                column: "AnswerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_QuizAttemptAnswers_QuestionId",
+                table: "QuizAttemptAnswers",
+                column: "QuestionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_QuizAttemptAnswers_QuizAttemptId_QuestionId_AnswerId",
+                table: "QuizAttemptAnswers",
+                columns: new[] { "QuizAttemptId", "QuestionId", "AnswerId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_QuizAttempts_QuizId",
                 table: "QuizAttempts",
                 column: "QuizId");
@@ -516,9 +569,6 @@ namespace LMS.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Answers");
-
-            migrationBuilder.DropTable(
                 name: "Certificates");
 
             migrationBuilder.DropTable(
@@ -531,16 +581,13 @@ namespace LMS.Infrastructure.Migrations
                 name: "Notifications");
 
             migrationBuilder.DropTable(
-                name: "QuizAttempts");
+                name: "QuizAttemptAnswers");
 
             migrationBuilder.DropTable(
                 name: "RefreshTokens");
 
             migrationBuilder.DropTable(
                 name: "Reviews");
-
-            migrationBuilder.DropTable(
-                name: "Questions");
 
             migrationBuilder.DropTable(
                 name: "Tags");
@@ -552,10 +599,19 @@ namespace LMS.Infrastructure.Migrations
                 name: "Lessons");
 
             migrationBuilder.DropTable(
-                name: "Quizzes");
+                name: "Answers");
+
+            migrationBuilder.DropTable(
+                name: "QuizAttempts");
 
             migrationBuilder.DropTable(
                 name: "Sections");
+
+            migrationBuilder.DropTable(
+                name: "Questions");
+
+            migrationBuilder.DropTable(
+                name: "Quizzes");
 
             migrationBuilder.DropTable(
                 name: "Courses");
