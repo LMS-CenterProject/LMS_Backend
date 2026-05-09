@@ -14,6 +14,10 @@ namespace LMS.Domain.Interfaces.Repositories
         Task<IEnumerable<QuizAttempt>> GetByQuizIdAsync(
             Guid quizId,
             CancellationToken ct = default);
+        Task<List<QuizAttempt>> GetByStudentAndQuizAsync(
+            Guid studentId,
+            Guid quizId,
+            CancellationToken ct);
 
         Task<bool> HasStudentAttemptedAsync(
             Guid studentId,
@@ -21,6 +25,7 @@ namespace LMS.Domain.Interfaces.Repositories
             CancellationToken ct = default);
         Task<int> CountAttemptsAsync(Guid studentId, Guid quizId, CancellationToken ct = default);
         Task<bool> HasPassedAsync(Guid studentId, Guid quizId, CancellationToken ct=default);
+
     }
 
 }
