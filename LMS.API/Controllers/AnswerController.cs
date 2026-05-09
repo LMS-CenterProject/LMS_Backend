@@ -1,4 +1,5 @@
-﻿using LMS.Application.Features.Answer.Command.CreateAnswer;
+﻿using LMS.Application.DTOs.Answers;
+using LMS.Application.Features.Answer.Command.CreateAnswer;
 using LMS.Application.Features.Answer.Command.DeleteAnswer;
 using LMS.Application.Features.Answer.Command.UpdateAnswer;
 using LMS.Application.Features.Answer.Query.GetAnswerByQuestion;
@@ -27,8 +28,15 @@ namespace LMS.API.Controllers
         {
             var result = await _mediator.Send(
                 new GetAnswerByQuestionIdQuery(questionId));
+            if (User.IsInRole("Instructor"))
+                return Ok(result); 
 
-            return Ok(result);
+            
+            return Ok(result.Select(a => new AnswerDto
+            {
+                Id = a.Id,
+                Text = a.Text
+            }));
         }
 
         // POST api/answers
