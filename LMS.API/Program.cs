@@ -23,16 +23,29 @@ try
 
     // ── Controllers ───────────────────────────────────────────────
     builder.Services.AddControllers();
+
+    // ── CORS ──────────────────────────────────────────────────────
+    var allowedOrigins = builder.Configuration
+        .GetSection("Cors:AllowedOrigins")
+        .Get<string[]>() ?? [];
+
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("LmsPolicy", policy =>
+            policy
+                .WithOrigins(allowedOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials());
+    });
+
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddEndpointsApiExplorer();
 
-    // ── SignalR ──────────────────────────────────────
+    // ── SignalR ───────────────────────────────────────────────────
     builder.Services.AddSignalR();
 
     // ── Clean Architecture layers ─────────────────────────────────
-    // AddApplication() registers MediatR, FluentValidation, and pipeline behaviors.
-    // AddInfrastructure() registers DbContext, UnitOfWork (which owns all repositories),
-    // and auth services (IJwtService, IPasswordHasher, IGoogleAuthService).
     builder.Services.AddApplication();
     builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -57,8 +70,8 @@ try
                 ValidIssuer = builder.Configuration["Jwt:Issuer"],
                 ValidAudience = builder.Configuration["Jwt:Audience"],
                 IssuerSigningKey = new SymmetricSecurityKey(
-                                                   Encoding.UTF8.GetBytes(
-                                                       builder.Configuration["Jwt:Secret"]!)),
+                                               Encoding.UTF8.GetBytes(
+                                                   builder.Configuration["Jwt:Secret"]!)),
                 ClockSkew = TimeSpan.Zero
             };
         });
@@ -117,20 +130,19 @@ try
             }
         });
 
-        // Include XML comments from the API project
         var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
         var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
         if (File.Exists(xmlPath))
-        {
             options.IncludeXmlComments(xmlPath);
-        }
     });
 
     // ── Global exception handler ──────────────────────────────────
     builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
     builder.Services.AddProblemDetails();
 
+    // ════════════════════════════════════════════════════════════
     var app = builder.Build();
+    // ════════════════════════════════════════════════════════════
 
     logger.Information("Running in {Environment} environment", app.Environment.EnvironmentName);
 
@@ -157,8 +169,10 @@ try
         c.RoutePrefix = string.Empty;
     });
 
+    // ── Middleware pipeline — ORDER MATTERS ───────────────────────
     app.UseExceptionHandler();
     app.UseHttpsRedirection();
+    app.UseCors("LmsPolicy");                    // ← MUST be before UseAuthentication
     app.UseAuthentication();
     app.UseMiddleware<RequestLoggingMiddleware>();
     app.UseAuthorization();
