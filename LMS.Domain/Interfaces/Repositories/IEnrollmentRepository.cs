@@ -25,5 +25,9 @@ namespace LMS.Domain.Interfaces.Repositories
             Guid courseId,
             CancellationToken ct = default);
 
+        Task<IEnumerable<Enrollment>> GetByCourseAsync(
+            Guid courseId,
+            CancellationToken ct = default);
+
     }
 }

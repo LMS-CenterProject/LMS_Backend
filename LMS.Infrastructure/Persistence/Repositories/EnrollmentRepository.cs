@@ -47,5 +47,25 @@ namespace LMS.Infrastructure.Persistence.Repositories
             await DbSet
                 .AnyAsync(
                     e => e.StudentId == studentId && e.CourseId == courseId, ct);
+
+
+        public async Task<IEnumerable<Enrollment>> GetByCourseAsync(
+            Guid courseId, CancellationToken ct = default) =>
+            await DbSet
+                .AsNoTracking() // 1. Disables memory-heavy change tracking
+                .Where(e => e.CourseId == courseId)
+                .Include(e => e.Student)
+                .Include(e => e.LessonProgresses)
+                .Include(e => e.Course)
+                    .ThenInclude(c => c.Sections)
+                        .ThenInclude(s => s.Lessons)
+                .Include(e => e.Certificate)
+                .OrderByDescending(e => e.EnrolledAt)
+                .AsSplitQuery() // 2. Fixes the Cartesian Product performance trap
+                .ToListAsync(ct);
+
+
+
+
     }
 }
