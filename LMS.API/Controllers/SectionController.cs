@@ -31,7 +31,7 @@ namespace LMS.WebApi.Controllers
 
         // POST: api/Sections
         [HttpPost]
-        [Authorize(Policy = "CreateCourse")]
+        [Authorize(Policy = "ManageCourses")]
         public async Task<IActionResult> CreateSection([FromBody] AddSectionCommand command)
         {
             var sectionId = await _mediator.Send(command);
@@ -40,7 +40,7 @@ namespace LMS.WebApi.Controllers
 
         // PUT: api/Sections/{id}
         [HttpPut("{id}")]
-        [Authorize(Policy = "CreateCourse")]
+        [Authorize(Policy = "ManageCourses")]
         public async Task<IActionResult> UpdateSection(Guid id, [FromBody] UpdateSectionCommand command)
         {
             var updatedCommand = command with { SectionId = id };
@@ -50,7 +50,7 @@ namespace LMS.WebApi.Controllers
 
         // DELETE: api/Sections/{id}
         [HttpDelete("{id}")]
-        [Authorize(Policy = "CreateCourse")]
+        [Authorize(Policy = "ManageCourses")]
         public async Task<IActionResult> DeleteSection(Guid id)
         {
             await _mediator.Send(new DeleteSectionCommand(id));

@@ -32,7 +32,7 @@ namespace LMS.WebApi.Controllers
 
         // POST: api/Lessons
         [HttpPost]
-        [Authorize(Policy = "CreateCourse")]
+        [Authorize(Policy = "ManageCourses")]
         public async Task<IActionResult> CreateLesson([FromBody] AddLessonCommand command)
         {
             var lessonId = await _mediator.Send(command);
@@ -41,7 +41,7 @@ namespace LMS.WebApi.Controllers
 
         // PUT: api/Lessons/{id}
         [HttpPut("{id}")]
-        [Authorize(Policy = "CreateCourse")]
+        [Authorize(Policy = "ManageCourses")]
         public async Task<IActionResult> UpdateLesson(Guid id, [FromBody] UpdateLessonCommand command)
         {
             var updatedCommand = command with { LessonId = id };
@@ -51,7 +51,7 @@ namespace LMS.WebApi.Controllers
 
         // PUT: api/Lessons/{id}/toggle-preview
         [HttpPut("{id}/toggle-preview")]
-        [Authorize(Policy = "CreateCourse")]
+        [Authorize(Policy = "Toggle")]
         public async Task<IActionResult> ToggleFreePreview(Guid id)
         {
             await _mediator.Send(new ToggleFreePreviewCommand(id));
@@ -60,7 +60,7 @@ namespace LMS.WebApi.Controllers
 
         // DELETE: api/Lessons/{id}
         [HttpDelete("{id}")]
-        [Authorize(Policy = "CreateCourse")]
+        [Authorize(Policy = "ManageCourses")]
         public async Task<IActionResult> DeleteLesson(Guid id)
         {
             await _mediator.Send(new DeleteLessonCommand(id));

@@ -70,7 +70,7 @@ namespace LMS.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(CourseDto), 200)]
         [ProducesResponseType(404)]
-        [Authorize(Policy = "CreateCourse")]
+        [Authorize(Policy = "ManageCourses")]
         public async Task<IActionResult> CreateCourse(CreateCourseCommand command)
         {
             var response = await _mediator.Send(command);
@@ -81,7 +81,7 @@ namespace LMS.API.Controllers
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(CourseDetailDto), 200)]
         [ProducesResponseType(404)]
-        [Authorize(Policy = "UpdateCourse")]
+        [Authorize(Policy = "ManageCourses")]
         public async Task<IActionResult> UpdateCourse(Guid id, [FromBody] UpdateCourseCommand command)
         {
             var updatedCommand = command with { CourseId = id };   
@@ -91,7 +91,7 @@ namespace LMS.API.Controllers
 
         // PUT: api/Courses/{id}/publish
         [HttpPut("{id}/publish")]
-        [Authorize(Policy = "PublishCourse")]
+        [Authorize(Policy = "ManageCourses")]
         public async Task<IActionResult> PublishCourse(Guid id)
         {
             await _mediator.Send(new PublishCourseCommand(id));
@@ -100,7 +100,7 @@ namespace LMS.API.Controllers
 
         // PUT: api/Courses/{id}/archive
         [HttpPut("{id}/archive")]
-        [Authorize(Policy = "ArchiveCourse")]
+        [Authorize(Policy = "ManageCourses")]
         public async Task<IActionResult> ArchiveCourse(Guid id)
         {
             await _mediator.Send(new ArchiveCourseCommand(id));
@@ -109,7 +109,7 @@ namespace LMS.API.Controllers
 
         // DELETE: api/Courses/{id}
         [HttpDelete("{id}")]
-        [Authorize(Policy = "DeleteCourse")]
+        [Authorize(Policy = "ManageCourses")]
         public async Task<IActionResult> DeleteCourse(Guid id)
         {
             await _mediator.Send(new DeleteCourseCommand(id));
