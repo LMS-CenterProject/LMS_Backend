@@ -35,28 +35,59 @@ namespace LMS.Infrastructure.Persistence.Repositories
         public ISectionRepository Sections => _sections ??= new SectionRepository(context);
 
 
+        //public async Task<int> SaveChangesAsync(CancellationToken ct = default)
+        //{
+        //    // 1. Save changes first
+        //    var result = await context.SaveChangesAsync(ct);
+
+        //    // 2. Collect and dispatch domain events raised by entities
+        //    var domainEvents = context.ChangeTracker
+        //        .Entries<Entity>()
+        //        .Select(e => e.Entity)
+        //        .Where(e => e.DomainEvents.Any())
+        //        .SelectMany(e =>
+        //        {
+        //            var events = e.DomainEvents.ToList();
+        //            e.ClearDomainEvents();
+        //            return events;
+        //        })
+        //        .ToList();
+
+        //    foreach (var domainEvent in domainEvents)
+        //        await publisher.Publish(domainEvent, ct);
+
+        //    return result;
+        //}
         public async Task<int> SaveChangesAsync(CancellationToken ct = default)
         {
-            // 1. Save changes first
-            var result = await context.SaveChangesAsync(ct);
+            try
+            {
+                var result = await context.SaveChangesAsync(ct);
 
-            // 2. Collect and dispatch domain events raised by entities
-            var domainEvents = context.ChangeTracker
-                .Entries<Entity>()
-                .Select(e => e.Entity)
-                .Where(e => e.DomainEvents.Any())
-                .SelectMany(e =>
-                {
-                    var events = e.DomainEvents.ToList();
-                    e.ClearDomainEvents();
-                    return events;
-                })
-                .ToList();
+                var domainEvents = context.ChangeTracker
+                    .Entries<Entity>()
+                    .Select(e => e.Entity)
+                    .Where(e => e.DomainEvents.Any())
+                    .SelectMany(e =>
+                    {
+                        var events = e.DomainEvents.ToList();
+                        e.ClearDomainEvents();
+                        return events;
+                    })
+                    .ToList();
 
-            foreach (var domainEvent in domainEvents)
-                await publisher.Publish(domainEvent, ct);
+                foreach (var domainEvent in domainEvents)
+                    await publisher.Publish(domainEvent, ct);
 
-            return result;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                Console.WriteLine(ex.InnerException?.Message);
+
+                throw;
+            }
         }
         public void Dispose() => context.Dispose();
     }

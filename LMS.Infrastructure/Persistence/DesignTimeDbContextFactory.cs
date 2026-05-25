@@ -10,7 +10,7 @@ namespace LMS.Infrastructure.Persistence
             var optionsBuilder = new DbContextOptionsBuilder<LMSDbContext>();
 
             optionsBuilder.UseSqlServer(
-                "Server=(localdb)\\MSSQLLocalDB;Database=LMSDb;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true");
+                "Server=db53550.public.databaseasp.net; Database=db53550; User Id=db53550; Password=Mf8-d2_K#pH6; Encrypt=True; TrustServerCertificate=True; MultipleActiveResultSets=True; ");
 
             return new LMSDbContext(optionsBuilder.Options);
         }
