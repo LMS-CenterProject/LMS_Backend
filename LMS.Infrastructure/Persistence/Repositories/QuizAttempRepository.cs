@@ -22,8 +22,14 @@ namespace LMS.Infrastructure.Persistence.Repositories
             CancellationToken ct = default)
         {
             return await _context.QuizAttempts
-                .Where(a => a.StudentId == studentId).OrderByDescending(a => a.AttemptedAt)
-                .ToListAsync(ct);
+        .Where(a => a.StudentId == studentId)
+        .OrderByDescending(a => a.AttemptedAt)
+        .Include(a => a.Quiz)                        // quiz title
+        .Include(a => a.Answers)                     // QuizAttemptAnswer rows
+            .ThenInclude(aa => aa.Question)          // question text
+        .Include(a => a.Answers)
+            .ThenInclude(aa => aa.Answer)            // answer text + IsCorrect
+        .ToListAsync(ct);
         }
 
         public async Task<IEnumerable<QuizAttempt>> GetByQuizIdAsync(
@@ -32,6 +38,8 @@ namespace LMS.Infrastructure.Persistence.Repositories
         {
             return await _context.QuizAttempts
                 .Where(a => a.QuizId == quizId)
+                .Include(a => a.Student)
+                .OrderByDescending(a => a.AttemptedAt)
                 .ToListAsync(ct);
         }
         public async Task<List<QuizAttempt>> GetByStudentAndQuizAsync(

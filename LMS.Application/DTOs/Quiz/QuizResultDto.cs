@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace LMS.Application.DTOs.Quize
+namespace LMS.Application.DTOs.Quiz
 {
     public class QuizResultDto
     {

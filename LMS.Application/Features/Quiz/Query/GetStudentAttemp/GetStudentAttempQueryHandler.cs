@@ -1,5 +1,5 @@
 ﻿using LMS.Application.Common.Interfaces;
-using LMS.Application.DTOs.Quize;
+using LMS.Application.DTOs.Quiz;
 using LMS.Domain.Interfaces.Repositories;
 using MediatR;
 using System;

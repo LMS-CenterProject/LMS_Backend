@@ -84,6 +84,7 @@ try
         options.AddPolicy("ManageQuiz", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
         options.AddPolicy("ManageQuestion", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
         options.AddPolicy("ManageAnswer", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
+        options.AddPolicy("ManageQuizAttempts", policy => policy.RequireRole("Instructor", "Admin", "SuperAdmin"));
         options.AddPolicy("ManageCategory", policy => policy.RequireRole("Admin", "SuperAdmin"));
         options.AddPolicy("ReadQuiz", policy => policy.RequireAuthenticatedUser());
         options.AddPolicy("ReadAnswer", policy => policy.RequireAuthenticatedUser());
