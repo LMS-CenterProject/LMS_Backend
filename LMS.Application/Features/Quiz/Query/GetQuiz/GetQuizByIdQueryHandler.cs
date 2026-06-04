@@ -1,6 +1,6 @@
 ﻿using LMS.Application.DTOs.Answers;
 using LMS.Application.DTOs.Question;
-using LMS.Application.DTOs.Quize;
+using LMS.Application.DTOs.Quiz;
 using LMS.Domain.Interfaces.Repositories;
 using MediatR;
 using System;

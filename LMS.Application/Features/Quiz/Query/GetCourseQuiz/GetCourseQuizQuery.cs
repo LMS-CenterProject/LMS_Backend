@@ -1,4 +1,4 @@
-﻿using LMS.Application.DTOs.Quize;
+﻿using LMS.Application.DTOs.Quiz;
 using MediatR;
 using System;
 using System.Collections.Generic;

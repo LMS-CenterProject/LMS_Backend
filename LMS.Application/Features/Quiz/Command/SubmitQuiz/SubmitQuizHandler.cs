@@ -1,5 +1,5 @@
 ﻿using LMS.Application.Common.Interfaces;
-using LMS.Application.DTOs.Quize;
+using LMS.Application.DTOs.Quiz;
 using LMS.Application.Features.Quiz.Command.SubmitQuiz;
 using LMS.Domain.Entities;
 using LMS.Domain.Interfaces;

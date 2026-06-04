@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LMS.Application.Features.Quiz.Command.SubmitQuiz
 {
-    using LMS.Application.DTOs.Quize;
+    using LMS.Application.DTOs.Quiz;
     using MediatR;
 
     public record SelectedAnswer(
